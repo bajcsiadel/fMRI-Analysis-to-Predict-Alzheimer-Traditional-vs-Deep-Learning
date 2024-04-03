@@ -31,6 +31,7 @@ torch = [
 	{version = "^2.2.0", markers = "sys_platform == 'darwin'"},
 #	{version = "2.2.0+cu121", source = "torch+cu121", markers = "sys_platform != 'darwin'"}
 ]
+torchinfo = "^1.8.0"
 torchvision = [
 	{version = "^0.17.0", markers = "sys_platform == 'darwin'"},
 #	{version = "0.17.0+cu121", source = "torch+cu121", markers = "sys_platform != 'darwin'"}

@@ -2,10 +2,11 @@ from torch import nn
 
 
 class AlexNetBase(nn.Module):
-    def __init__(self):
+    def __init__(self, n_color_channels=3):
         super().__init__()
+
         self.layer1 = nn.Sequential(
-            nn.Conv2d(3, 96, kernel_size=11, stride=4, padding=0),
+            nn.Conv2d(n_color_channels, 96, kernel_size=11, stride=4, padding=0),
             nn.BatchNorm2d(96),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=3, stride=2),

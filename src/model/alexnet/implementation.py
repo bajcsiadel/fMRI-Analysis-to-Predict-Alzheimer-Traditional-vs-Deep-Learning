@@ -1,15 +1,18 @@
 from torch import nn
+from torchinfo import summary
 
-from model._base import AlexNetBase
+from model.alexnet.base import AlexNetBase
 
 
 class AlexNet(AlexNetBase):
-    # https://blog.paperspace.com/alexnet-pytorch/#alexnet-from-scratch
-    def __init__(self, n_classes):
-        super().__init__()
+    def __init__(self, n_classes, n_color_channels=3):
+        super().__init__(n_color_channels=n_color_channels)
+
+        self.flatten = nn.Flatten()
+
         self.fc = nn.Sequential(
             nn.Dropout(0.5),
-            nn.Linear(9216, 4096),
+            nn.Linear(6400, 4096),
             nn.ReLU(),
         )
         self.fc1 = nn.Sequential(
@@ -22,7 +25,7 @@ class AlexNet(AlexNetBase):
     def forward(self, x):
         out = super().forward(x)
 
-        out = out.reshape(out.shape[0], -1)
+        out = self.flatten(out)
         out = self.fc(out)
         out = self.fc1(out)
         out = self.fc2(out)
@@ -30,8 +33,12 @@ class AlexNet(AlexNetBase):
         return out
 
 
+class ModifiedAlexNet(nn.Module):
+    ...
+
+
 if __name__ == "__main__":
     from icecream import ic
 
     alex_net = AlexNet(n_classes=3)
-    ic(alex_net)
+    ic(summary(alex_net, input_size=(1, 3, 224, 224), verbose=0))
