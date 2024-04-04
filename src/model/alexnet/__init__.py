@@ -1,2 +1,2 @@
-from .implementation import AlexNet, ModifiedAlexNet
-from .base import AlexNetBase
+from model.alexnet.base import AlexNetFeatures
+from model.alexnet.implementation import AlexNet, ModifiedAlexNet

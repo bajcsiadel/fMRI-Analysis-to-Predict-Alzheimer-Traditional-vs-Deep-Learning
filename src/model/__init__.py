@@ -1,2 +1,2 @@
-from .alexnet import AlexNet, ModifiedAlexNet
-from .inception_v2 import InceptionV2, ModifiedInceptionV2
+from model.alexnet import AlexNet, AlexNetFeatures, ModifiedAlexNet
+from model.inception_v2 import InceptionFeatures, InceptionV2, ModifiedInceptionV2
