@@ -5,13 +5,13 @@ from model import ModifiedAlexNet, ModifiedInceptionV2
 
 
 class D2(nn.Module):
-    def __init__(self, n_color_channels, n_classes):
+    def __init__(self, n_classes, n_color_channels=3):
         super().__init__()
         self.alexnet = ModifiedAlexNet(
             n_classes=n_classes, n_color_channels=n_color_channels
         )
         self.inception_v2 = ModifiedInceptionV2(
-            n_color_channel=n_color_channels, n_classes=n_classes
+            n_classes=n_classes, n_color_channels=n_color_channels
         )
 
         self.fc1 = nn.Sequential(
@@ -24,7 +24,7 @@ class D2(nn.Module):
         )
         self.classification = nn.Sequential(
             nn.Linear(64, n_classes),
-            nn.Softmax()
+            nn.Softmax(dim=1)
         )
 
     def forward(self, x):

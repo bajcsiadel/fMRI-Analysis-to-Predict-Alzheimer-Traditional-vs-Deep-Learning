@@ -28,11 +28,11 @@ class AuxClassifier(nn.Module):
 
 
 class InceptionV2(nn.Module):
-    def __init__(self, n_color_channel, n_classes):
+    def __init__(self, n_classes, n_color_channels=3):
         super().__init__()
 
         self.stem = nn.Sequential(
-            BasicConv2d(n_color_channel, 32, kernel_size=3, stride=2, padding=0),
+            BasicConv2d(n_color_channels, 32, kernel_size=3, stride=2, padding=0),
             BasicConv2d(32, 32, kernel_size=3, stride=1, padding=0),
             BasicConv2d(32, 64, kernel_size=3, stride=1, padding=1),
             nn.MaxPool2d(kernel_size=3, stride=2),
@@ -67,7 +67,7 @@ class InceptionV2(nn.Module):
         self.avg_pool = nn.AdaptiveAvgPool2d(output_size=(1, 1))
         self.classifier = nn.Sequential(
             nn.Linear(2048, n_classes),
-            nn.Softmax()
+            nn.Softmax(dim=1)
         )
 
     def forward(self, x):
