@@ -10,7 +10,21 @@ The implementation is based on [this article](https://medium.com/nerd-for-tech/k
 
 ## Structure
 
-![Structure of Inception V2](https://miro.medium.com/v2/resize:fit:640/format:webp/1*sLR3Zxdd8mxyg51F3bm6xQ.png)
+| type             | kernel size/stride or remark | input size |
+|------------------|:----------------------------:|:----------:|
+| conv             |             3x3/2            |  3x299x299 |
+| conv             |             3x3/1            | 32x149x149 |
+| conv pad         |             3x3/1            | 32x147x147 |
+| pool             |             3x3/2            | 64x147x147 |
+| conv             |             3x3/1            |  64x73x73  |
+| conv             |             3x3/2            |  80x71x71  |
+| conv             |             3x3/1            |  192x35x35 |
+| 3 x Inception F5 |                              |  288x35x35 |
+| 5 x Inception F6 |                              |  768x17x17 |
+| 2 x Inception F7 |                              |  1280x8x8  |
+| pool             |              8x8             |  2048x8x8  |
+| linear           |            logits            |   2048x1   |
+| softmax          |          classifier          |   1000x1   |
 
 ```text
 ===============================================================================================
