@@ -1,6 +1,7 @@
 poetry.lock
 
 .env
+**/*.asv
 
 .idea/
 **/__pycache__/
