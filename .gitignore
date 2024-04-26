@@ -7,3 +7,5 @@ poetry.lock
 **/__pycache__/
 
 **/data/
+
+**/log_*
