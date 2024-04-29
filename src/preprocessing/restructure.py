@@ -84,8 +84,14 @@ for index, (_, details) in enumerate(rs_fmri_data.iterrows(), start=1):
     result_sub_dir_path = OUTPUT_DIR / sub_dir_name
     if not result_sub_dir_path.exists():
         result_sub_dir_path.mkdir(parents=True)
-        (result_sub_dir_path / "FunRaw").mkdir()
-        (result_sub_dir_path / "T1Raw").mkdir()
+        (result_sub_dir_path / "FunImg").mkdir()
+        (result_sub_dir_path / "T1Img").mkdir()
 
-    shutil.copytree(DATA_ROOT / dir_name / "functional", OUTPUT_DIR / sub_dir_name / "FunRaw" / dir_name)
-    shutil.copytree(DATA_ROOT / dir_name / "structural", OUTPUT_DIR / sub_dir_name / "T1Raw" / dir_name)
+    shutil.copytree(
+        DATA_ROOT / dir_name / "functional",
+        OUTPUT_DIR / sub_dir_name / "FunImg" / dir_name
+    )
+    shutil.copytree(
+        DATA_ROOT / dir_name / "structural",
+        OUTPUT_DIR / sub_dir_name / "T1Img" / dir_name
+    )
