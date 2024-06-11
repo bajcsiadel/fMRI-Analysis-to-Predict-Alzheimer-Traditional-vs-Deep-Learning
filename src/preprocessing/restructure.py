@@ -3,6 +3,7 @@ import copy
 import logging
 import shutil
 import sys
+import typing
 import warnings
 from enum import Enum
 from pathlib import Path
@@ -84,18 +85,16 @@ class MRITags(Enum):
     )
 
 
-def get_tag_from_meta(meta, tag, default_value=None):
+def get_tag_from_meta(
+        meta: pydicom.Dataset, tag: MRITags, default_value: typing.Any = None
+) -> typing.Any:
     """
     Get a corresponding value for a tag in a dicom metadata.
 
     :param meta: dicom file metadata
-    :type meta: pydicom.Dataset
     :param tag: possible tag codes
-    :type tag: MRITags
     :param default_value: default value, if the tag is not found
-    :type default_value: any
     :return: the corresponding value stored by the tag
-    :rtype: any
     """
     for tag_chain in tag.value:
         try:
@@ -111,18 +110,14 @@ def get_tag_from_meta(meta, tag, default_value=None):
     return default_value
 
 
-def set_tag_from_meta(meta, tag, value):
+def set_tag_from_meta(meta: pydicom.Dataset, tag: MRITags, value: typing.Any) -> bool:
     """
     Set a corresponding value for a tag in a dicom metadata.
 
     :param meta: dicom file metadata
-    :type meta: pydicom.Dataset
     :param tag: possible tag codes
-    :type tag: MRITags
     :param value: value to be set
-    :type value: any
     :return: ``True`` if the change was successful, ``False`` otherwise
-    :rtype: bool
     """
     for tag_chain in tag.value:
         try:
