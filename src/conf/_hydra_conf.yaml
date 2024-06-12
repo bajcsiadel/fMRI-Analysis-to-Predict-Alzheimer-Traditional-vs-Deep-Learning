@@ -1,0 +1,11 @@
+hydra:
+  sweep:
+    dir: ${oc.env:RESULTS_LOCATION}/${hydra.job.name}
+  output_subdir: conf
+  job_logging:
+    formatters:
+      simple:
+        format: '[%(asctime)s %(levelname)s] %(message)s'
+    handlers:
+      file:
+        encoding: utf-8

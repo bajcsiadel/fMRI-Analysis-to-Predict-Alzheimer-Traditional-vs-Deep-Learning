@@ -1,0 +1,6 @@
+defaults:
+  - _data_type_validation  # Validate data type. Defined in /src/utils/config/data.py
+  - _self_
+
+location: ${oc.env:DATA_ROOT}/ADNI
+metafile: ADNI-Sethuraman-2023.csv

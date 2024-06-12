@@ -1,0 +1,5 @@
+defaults:
+  - _script_config_validation  # Validate script config. Defined in src/scripts/data/select_patients.py
+  - data_information@data
+  - output_information@output
+  - _self_
