@@ -5,9 +5,15 @@ from utils.errors.file_errors import UnsupportedExtensionError
 
 
 @dc.dataclass
+class Metadata:
+    filename: Path
+    parameters: dict
+
+
+@dc.dataclass
 class DataConfig:
     location: Path
-    metafile: Path
+    metadata: Metadata
 
     def __setattr__(self, key, value):
         match key:
@@ -16,18 +22,18 @@ class DataConfig:
                     raise ValueError("Data location does not exist")
                 elif not value.is_dir():
                     raise ValueError("Data location is not a directory")
-            case "metafile":
-                if not value.exists():
+            case "metadata":
+                if not value.filename.exists():
                     if "location" in vars(self):
-                        if not (self.location / value).exists():
+                        if not (self.location / value.filename).exists():
                             raise ValueError("Data metafile does not exist")
                         else:
-                            value = self.location / value
+                            value.filename = self.location / value.filename
                     else:
                         raise ValueError("Data metafile does not exist")
-                elif not value.is_file():
+                elif not value.filename.is_file():
                     raise ValueError("Data metafile is not a file")
-                elif value.suffix != ".csv":
+                elif value.filename.suffix != ".csv":
                     raise UnsupportedExtensionError("Data metafile is not a CSV file")
 
         super().__setattr__(key, value)

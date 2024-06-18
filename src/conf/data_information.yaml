@@ -3,4 +3,7 @@ defaults:
   - _self_
 
 location: ${oc.env:DATA_ROOT}/ADNI
-metafile: ADNI-Sethuraman-2023.csv
+metadata:
+  filename: metadata.csv
+  parameters:
+    header: 0
