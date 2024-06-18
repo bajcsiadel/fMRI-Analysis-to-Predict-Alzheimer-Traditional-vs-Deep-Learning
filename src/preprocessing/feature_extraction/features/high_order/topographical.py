@@ -2,22 +2,22 @@ import numpy as np
 from icecream import ic
 
 from preprocessing.feature_extraction.features.low_order import dynamic_low_order_fc
-from preprocessing.feature_extraction.utils import correlation
+from preprocessing.feature_extraction.helpers import correlation
 from utils.environment import get_env
 
 
 def dynamic_topographical_high_order_fc(
-        *,
-        C: np.ndarray = None,
-        signal: np.array = None, window_length: int = None, stride: int = None
+    *,
+    C: np.ndarray = None,
+    signal: np.array = None,
+    window_length: int = None,
+    stride: int = None,
 ) -> np.ndarray:
     """
     Dynamic high-order FC network can be constructed by calculating the FC between
     every pair of the low-order sub-networks (one line from the low-order FC
-    representing the connectivity of a selected ROI to all others).
-
-    >>> window_length = 70
-    >>> stride = 1
+    representing the connectivity of a selected ROI to all others). In the original
+    article the following values were used: window_length = 70 and stride = 1.
 
     .. [Zhang-2017] Zhang, Y., Zhang, H., Chen, X., Lee, S.-W., & Shen, D. (2017).
         Hybrid High-order Functional Connectivity Networks Using Resting-state
@@ -52,7 +52,7 @@ def dynamic_topographical_high_order_fc(
 
 
 def static_topographical_high_order_fc(
-        *, C: np.ndarray = None, signal: np.array = None
+    *, C: np.ndarray = None, signal: np.array = None
 ) -> np.ndarray:
     """
     Static high-order FC network can be constructed by calculating the FC between
@@ -76,17 +76,21 @@ def static_topographical_high_order_fc(
     )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     from pathlib import Path
 
+    import matplotlib.pyplot as plt
     import pandas as pd
-    # import seaborn as sns
+    import seaborn as sns
 
-    p = Path("C:\\Users\\User\\Documents\\My-staff\\Datasets\\ADNI-structured\\"
-             "top-down_3\\Results\\slow4_ROISignals_FunImgARCWSF\\"
-             "ROISignals_002_S_0295-2011_06_02.npz")
+    p = Path(
+        "E:\\Adel\\University\\PhD\\MECO\\INSPIRE\\Data\\ADNI\\Signals\\"
+        "full-band_ROISignals_FunImgARCWSF\\ROISignals_002_S_1155-2012_12_20.npz"
+    )
     signal_ = np.load(p)["signal"]
-    coeff = dynamic_topographical_high_order_fc(signal=signal_, window_length=70, stride=1)
+    coeff = dynamic_topographical_high_order_fc(
+        signal=signal_, window_length=70, stride=1
+    )
     ic(coeff.shape)
     ic(coeff.min())
     ic(coeff.max())
@@ -95,4 +99,7 @@ if __name__ == '__main__':
         get_env("PROJECT_ROOT") + "\\dynamic_traditional_high_order_fc_10.csv"
     )
 
-    # sns.heatmap(coeff)
+    fig, ax = plt.subplots()
+    sns.heatmap(coeff[10], cmap="RdYlBu_r", ax=ax)
+    ax.axis("off")
+    plt.show()

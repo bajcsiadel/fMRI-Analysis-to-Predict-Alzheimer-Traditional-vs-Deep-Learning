@@ -1,20 +1,18 @@
 import numpy as np
 from icecream import ic
 
-from preprocessing.feature_extraction.utils import SlidingWindow, correlation
+from preprocessing.feature_extraction.helpers import apply_sliding_window, correlation
 from utils.environment import get_env
 
 
 def dynamic_low_order_fc(
-        signal: np.ndarray, window_length: int, stride: int = 1
+    signal: np.ndarray, window_length: int, stride: int = 1
 ) -> np.ndarray:
     """
     Function to represent a low order feature extractor presented in [Zhang-2017]_.
     After the sub-series are defined a correlation matrix is constructed using
     Pearson's correlation. In the original article the following values were used:
-
-    >>> window_length = 70
-    >>> stride = 1
+    window_length = 70 and stride = 1.
 
     .. [Zhang-2017] Zhang, Y., Zhang, H., Chen, X., Lee, S.-W., & Shen, D. (2017).
         Hybrid High-order Functional Connectivity Networks Using Resting-state
@@ -26,10 +24,9 @@ def dynamic_low_order_fc(
     :param stride: The stride used for the sliding window. Defaults to ``1``.
     :return: The computed dynamic low-order FC
     """
-    sliding_window = SlidingWindow(window_length, stride)
-    X = sliding_window(signal)
+    X = apply_sliding_window(signal, window_length=window_length, stride=stride)
     # defining correlation
-    C = np.empty((*X.shape[:2], X.shape[1]))
+    C = np.empty((X.shape[0], X.shape[2], X.shape[2]))
     for k in range(X.shape[0]):
         # X is centralized and normalized while computing the correlation
         C[k] = correlation(X[k])
@@ -45,18 +42,20 @@ def static_low_order_fc(signal: np.ndarray) -> np.ndarray:
     :param signal: The extracted ROI signals
     :return: The computed static low-order FC
     """
-    return dynamic_low_order_fc(signal, get_env("TR"), 1)
+    return dynamic_low_order_fc(signal, int(get_env("TR")), 1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     from pathlib import Path
 
+    import matplotlib.pyplot as plt
     import pandas as pd
-    # import seaborn as sns
+    import seaborn as sns
 
-    p = Path("C:\\Users\\User\\Documents\\My-staff\\Datasets\\ADNI-structured\\"
-             "top-down_3\\Results\\slow4_ROISignals_FunImgARCWSF\\"
-             "ROISignals_002_S_0295-2011_06_02.npz")
+    p = Path(
+        "E:\\Adel\\University\\PhD\\MECO\\INSPIRE\\Data\\ADNI\\Signals\\"
+        "full-band_ROISignals_FunImgARCWSF\\ROISignals_002_S_1155-2012_12_20.npz"
+    )
     signal_ = np.load(p)["signal"]
     coeff = dynamic_low_order_fc(signal_, window_length=70, stride=1)
     ic(coeff.shape)
@@ -67,4 +66,7 @@ if __name__ == '__main__':
         get_env("PROJECT_ROOT") + "\\dynamic_low_order_fc_10.csv"
     )
 
-    # sns.heatmap(coeff)
+    fig, ax = plt.subplots()
+    sns.heatmap(coeff[10], cmap="RdYlBu_r", ax=ax)
+    ax.axis("off")
+    plt.show()
