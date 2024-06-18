@@ -57,7 +57,7 @@ parser.add_argument(
 parser.add_argument(
     "--out-file",
     type=str,
-    default="image_data.csv",
+    default="image-data.csv",
     help="Name of the output file"
 )
 

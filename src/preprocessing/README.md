@@ -100,6 +100,12 @@ python preprocessing/convert_signals.py
 This script will convert the resulting `.txt` files to `.npz` for easier 
 usage in the following.
 
+Call 
+```shell
+python preprocessing/extact_metadata.py
+```
+to customize the metadata later used in the analysis.
+
 [^DPARSF]: Chao-Gan Y, Yu-Feng Z. DPARSF: A MATLAB Toolbox for "Pipeline" Data
   Analysis of Resting-State fMRI. Front Syst Neurosci. 2010;4:13. Published 2010
   May 14. [doi:10.3389/fnsys.2010.00013](https://doi.org/10.3389/fnsys.2010.00013)
