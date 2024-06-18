@@ -1,3 +1,21 @@
+"""
+Restructure
+===========
+
+Restructure images from ADNI dataset to a more convenient format and
+creating metadata file.
+
+Arguments
+=========
+
+-h, --help            show this help message and exit
+-f [FILE ...], --file [FILE ...]
+                    Path to dicom file
+-d DIR, --dir DIR     Directory of the dataset
+-o OUT_DIR, --out-dir OUT_DIR
+                    Output directory
+--out-file OUT_FILE   Name of the output file
+"""
 import argparse
 import copy
 import logging
@@ -18,7 +36,7 @@ from utils.environment import get_env
 from utils import pipe
 
 
-parser = argparse.ArgumentParser(__file__, "Create data.csv file")
+parser = argparse.ArgumentParser(__file__, "Create metadata file")
 parser.add_argument(
     "-f", "--file",
     type=Path,
@@ -35,6 +53,12 @@ parser.add_argument(
     "-o", "--out-dir",
     type=Path,
     help="Output directory",
+)
+parser.add_argument(
+    "--out-file",
+    type=str,
+    default="image_data.csv",
+    help="Name of the output file"
 )
 
 
@@ -166,30 +190,28 @@ console_handler = logging.StreamHandler(sys.stdout)
 console_handler.setFormatter(formatter)
 logger.addHandler(console_handler)
 
-DATA_FILE = DATA_ROOT / "data.csv"
-image_groups_file = DATA_ROOT / "image_groups.json"
+DATA_FILE = DATA_ROOT / args.out_file
 
-# if DATA_FILE.exists():
-#     data = pd.read_csv(DATA_FILE, index_col=0, header=0)
-# else:
-data = pd.DataFrame(
-    index=pd.Index(
-        [],
-        name="index"
-    ),
-    columns=[
-        "patient_id", "session_time", "session_name",
-        "image_type", "magnetic_field_strength", "patient_position",
-        "patient_sex", "patient_age", "n_volumes", "n_slices",
-        "record_time_per_volume", "record_time_per_slice",
-        "image_height", "image_width",
-        "slice_thickness", "x_pixel_spacing", "y_pixel_spacing",
-        "direction_x", "direction_y", "direction_z",
-        "TR_original", "TR", "contrast",
-    ],
-)
-data.to_csv(DATA_FILE)
-data.to_csv(OUTPUT_DIR / "data.csv")
+if DATA_FILE.exists():
+    data = pd.read_csv(DATA_FILE, index_col=0, header=0)
+else:
+    data = pd.DataFrame(
+        index=pd.Index(
+            [],
+            name="index"
+        ),
+        columns=[
+            "patient_id", "session_time", "session_name",
+            "image_type", "magnetic_field_strength", "patient_position",
+            "patient_sex", "patient_age", "n_volumes", "n_slices",
+            "record_time_per_volume", "record_time_per_slice",
+            "image_height", "image_width",
+            "slice_thickness", "x_pixel_spacing", "y_pixel_spacing",
+            "direction_x", "direction_y", "direction_z",
+            "TR_original", "TR", "contrast",
+        ],
+    )
+    data.to_csv(DATA_FILE)
 
 logger.info(f"Number of image groups in ADNI dataset: {len(dirs)}")
 for index, session_name_dir in enumerate(dirs, start=1):
@@ -302,7 +324,6 @@ for index, session_name_dir in enumerate(dirs, start=1):
             get_tag_from_meta(images_meta[0], MRITags.acquisition_contrast),
         ]
         data.to_csv(DATA_FILE)
-        data.to_csv(OUTPUT_DIR / "data.csv")
         del images_meta
         del fmri_scans
         # change dir to point to anatomical image dir on the same date
@@ -310,4 +331,3 @@ for index, session_name_dir in enumerate(dirs, start=1):
 
 
 data.to_csv(DATA_FILE)
-data.to_csv(OUTPUT_DIR / "data.csv")
