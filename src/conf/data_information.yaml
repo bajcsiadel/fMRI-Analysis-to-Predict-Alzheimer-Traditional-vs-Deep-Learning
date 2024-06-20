@@ -7,3 +7,9 @@ metadata:
   filename: metadata.csv
   parameters:
     header: 0
+  must_exist: true
+selected_patients:
+  filename: selected-patients.csv
+  parameters:
+    header: 0
+  must_exist: false

@@ -9,41 +9,28 @@ from pathlib import Path
 from hydra.core.hydra_config import HydraConfig
 
 
-class Logger(logging.Logger):
+class BasicLogger(logging.Logger):
     """
     Object for managing the log directory
 
     :param name: The name of the logger
     :type name: str
-    :param output_dirs: The output directories
-    :type output_dirs: utils.config.output.OutputConfig
     """
 
-    def __init__(self, name, output_dirs):
+    def __init__(self, name):
         super().__init__(name)
         self.parent = logging.root
 
-        self.__log_dir = Path(HydraConfig.get().runtime.output_dir)
-        self.__output_dirs = output_dirs
+        self._log_dir = Path(HydraConfig.get().runtime.output_dir)
 
         # Ensure the directories exist
         self.log_dir.mkdir(parents=True, exist_ok=True)
-        self.metadata_dir.mkdir(parents=True, exist_ok=True)
-        self.checkpoint_dir.mkdir(parents=True, exist_ok=True)
 
         logging.getLogger().manager.loggerDict[name] = self
 
     @property
     def log_dir(self):
-        return self.__log_dir
-
-    @property
-    def checkpoint_dir(self):
-        return self.__log_dir / self.__output_dirs.checkpoints_dir
-
-    @property
-    def metadata_dir(self):
-        return self.__log_dir / self.__output_dirs.metadata_dir
+        return self._log_dir
 
     def _log(
         self,
@@ -104,6 +91,51 @@ class Logger(logging.Logger):
         log_fn(f"{type(ex).__name__}: {ex}", **kwargs)
         log_fn(traceback.format_exc(), **kwargs)
 
+    def __call__(self, message):
+        """
+        Log a message
+
+        :param message:
+        :type message: str
+        """
+        level, msg = message.split(": ", 1)
+        match level:
+            case "INFO":
+                self.info(msg)
+            case "WARNING":
+                self.warning(msg)
+            case "ERROR":
+                self.error(msg)
+            case _:
+                self.log(logging.INFO, message)
+
+
+class Logger(BasicLogger):
+    """
+    Object for managing the log directory during training
+
+    :param name: The name of the logger
+    :type name: str
+    :param output_dirs: The output directories
+    :type output_dirs: utils.config.output.OutputConfig
+    """
+
+    def __init__(self, name, output_dirs):
+        super().__init__(name)
+        self.__output_dirs = output_dirs
+
+        # Ensure the directories exist
+        self.metadata_dir.mkdir(parents=True, exist_ok=True)
+        self.checkpoint_dir.mkdir(parents=True, exist_ok=True)
+
+    @property
+    def checkpoint_dir(self):
+        return self._log_dir / self.__output_dirs.checkpoints_dir
+
+    @property
+    def metadata_dir(self):
+        return self._log_dir / self.__output_dirs.metadata_dir
+
     def log_command_line(self):
         """
         Generate a script that can be used to run the experiment again
@@ -137,21 +169,3 @@ class Logger(logging.Logger):
             )
             fd.write("# attaching the screen\n")
             fd.write(f"screen -r {screen_name}\n")
-
-    def __call__(self, message):
-        """
-        Log a message
-
-        :param message:
-        :type message: str
-        """
-        level, msg = message.split(": ", 1)
-        match level:
-            case "INFO":
-                self.info(msg)
-            case "WARNING":
-                self.warning(msg)
-            case "ERROR":
-                self.error(msg)
-            case _:
-                self.log(logging.INFO, message)
