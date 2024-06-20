@@ -5,4 +5,5 @@ poetry.lock
 .idea/
 **/__pycache__/
 
-**/data/
+**/output/
+**/*.csv
