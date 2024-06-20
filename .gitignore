@@ -1,11 +1,11 @@
 poetry.lock
 
 .env
-**/*.asv
 
 .idea/
 **/__pycache__/
 
-**/data/
+**/output/
+**/*.csv
 
 **/log_*

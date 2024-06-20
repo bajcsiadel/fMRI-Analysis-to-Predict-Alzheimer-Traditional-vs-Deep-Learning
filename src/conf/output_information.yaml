@@ -1,0 +1,6 @@
+defaults:
+  - _output_type_validation  # Validate output type. Defined in src/utils/config/output.py
+  - _self_
+
+metadata_dir: metadata
+checkpoints_dir: checkpoints
