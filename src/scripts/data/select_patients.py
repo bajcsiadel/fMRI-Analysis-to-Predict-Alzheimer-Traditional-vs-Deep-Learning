@@ -5,6 +5,7 @@ import pandas as pd
 from omegaconf import OmegaConf
 from sklearn.model_selection import train_test_split
 
+from utils.config.resolvers import resolve_results_location
 from utils.config.types import DataConfig
 from utils.environment import get_env
 from utils.logger import BasicLogger
@@ -154,4 +155,7 @@ def main(cfg: Config):
 
 config_store = DataConfig.add_type_validation()
 config_store.store(name="_script_config_validation", node=Config)
+
+resolve_results_location()
+
 main()

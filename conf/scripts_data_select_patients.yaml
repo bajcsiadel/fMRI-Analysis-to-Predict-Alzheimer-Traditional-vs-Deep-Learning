@@ -1,6 +1,7 @@
 defaults:
   - _script_config_validation  # Validate script config. Defined in src/scripts/data/select_patients.py
   - _hydra_conf
+  - _general_sweep_subdir
   - data_information@data
   - _self_
 
