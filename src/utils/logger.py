@@ -7,6 +7,7 @@ from datetime import datetime
 from pathlib import Path
 
 from hydra.core.hydra_config import HydraConfig
+from torch.utils.tensorboard import SummaryWriter
 
 
 class BasicLogger(logging.Logger):
@@ -22,6 +23,7 @@ class BasicLogger(logging.Logger):
         self.parent = logging.root
 
         self._log_dir = Path(HydraConfig.get().runtime.output_dir)
+        self.info(f"Logging to {self._log_dir}")
 
         # Ensure the directories exist
         self.log_dir.mkdir(parents=True, exist_ok=True)
@@ -61,9 +63,10 @@ class BasicLogger(logging.Logger):
         """
         if type(msg) is not str:
             msg = str(msg)
-        indent = msg[: len(msg) - len(msg.lstrip())]
-        msg = msg.strip()
-        for line in msg.splitlines():
+        lines = msg.splitlines()
+        indent = lines[0][: len(lines[0]) - len(lines[0].lstrip())]
+        lines[0] = lines[0].strip()
+        for line in lines:
             super()._log(
                 level,
                 f"{indent}{line}",
@@ -110,7 +113,7 @@ class BasicLogger(logging.Logger):
                 self.log(logging.INFO, message)
 
 
-class Logger(BasicLogger):
+class TrainLogger(BasicLogger):
     """
     Object for managing the log directory during training
 
@@ -127,6 +130,9 @@ class Logger(BasicLogger):
         # Ensure the directories exist
         self.metadata_dir.mkdir(parents=True, exist_ok=True)
         self.checkpoint_dir.mkdir(parents=True, exist_ok=True)
+        self.tensorboard_dir.mkdir(parents=True, exist_ok=True)
+
+        self._tensorboard_writer = SummaryWriter(str(self.tensorboard_dir))
 
     @property
     def checkpoint_dir(self):
@@ -136,18 +142,26 @@ class Logger(BasicLogger):
     def metadata_dir(self):
         return self._log_dir / self.__output_dirs.metadata_dir
 
+    @property
+    def tensorboard_dir(self):
+        return self._log_dir / self.__output_dirs.tensorboard_dir
+
+    @property
+    def tensorboard(self):
+        return self._tensorboard_writer
+
     def log_command_line(self):
         """
         Generate a script that can be used to run the experiment again
         """
         python_file = sys.argv[0]
         params = " ".join(HydraConfig.get().overrides.task)
-        screen_name = "mam-ppn-" + datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+        screen_name = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
         bash_script_file = self.metadata_dir / "run-experiment.sh"
         with bash_script_file.open(mode="w") as fd:
             fd.write("#!/bin/bash\n")
             fd.write("\n")
-            fd.write(f"cd {os.getenv('PROJECT_ROOT')}\n")
+            fd.write(f"cd {os.getenv('SOURCE_LOCATION')}\n")
             fd.write("\n")
             fd.write("# check if environment exists\n")
             fd.write("poetry env list > /dev/null\n")
@@ -169,3 +183,6 @@ class Logger(BasicLogger):
             )
             fd.write("# attaching the screen\n")
             fd.write(f"screen -r {screen_name}\n")
+
+    def __del__(self):
+        self._tensorboard_writer.close()
