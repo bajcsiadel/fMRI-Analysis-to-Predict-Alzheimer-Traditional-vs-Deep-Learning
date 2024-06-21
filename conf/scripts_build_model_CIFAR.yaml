@@ -1,0 +1,9 @@
+defaults:
+  - _script_config_validation
+  - _hydra_conf
+  - _general_sweep_subdir
+  - _self_
+  - model: svm
+cv_folds: 10
+
+cifar_location: ${oc.env:DATA_ROOT}/CIFAR10
