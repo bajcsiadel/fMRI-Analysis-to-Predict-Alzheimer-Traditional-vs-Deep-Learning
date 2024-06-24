@@ -1,0 +1,15 @@
+defaults:
+  - _script_config_validation
+  - _hydra_conf
+  - _general_sweep_subdir
+  - _self_
+  - output_information@out_dirs
+
+model: AlexNet
+n_epochs: 20
+batch_size: 128
+learning_rate: 0.005
+disable_gpu: false
+pretrained: false
+
+cifar_location: ${oc.env:DATA_ROOT}/CIFAR10
