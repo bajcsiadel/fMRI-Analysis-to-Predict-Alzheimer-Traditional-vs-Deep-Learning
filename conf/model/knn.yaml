@@ -11,7 +11,8 @@ params:
     - 10
     - 50
     - 100
-    - 500
   weights:
     - uniform
     - distance
+trainer:
+  _target_: model.traditional_ml.train.train_model

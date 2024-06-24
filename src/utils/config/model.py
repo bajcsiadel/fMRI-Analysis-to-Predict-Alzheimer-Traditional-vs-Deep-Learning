@@ -5,6 +5,7 @@ import dataclasses as dc
 class ModelConfig:
     name: str
     instance: dict = dc.field(default_factory=dict)
+    trainer: dict = dc.field(default_factory=dict)
     params: dict = dc.field(default_factory=dict)
 
     def __setattr__(self, key, value):
@@ -12,7 +13,6 @@ class ModelConfig:
             case "instance" | "trainer":
                 if "_target_" not in value:
                     raise ValueError("Model instance must have a '_target_' attribute")
-
         super().__setattr__(key, value)
 
     @staticmethod

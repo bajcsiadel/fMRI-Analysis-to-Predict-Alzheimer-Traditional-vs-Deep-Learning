@@ -19,3 +19,15 @@ params:
   kernel:
     - rbf
     - poly
+  degree:
+    - 2
+    - 3
+    - 4
+    - 5
+  coef0:
+    - 0
+    - 9
+    - 10
+    - 100
+trainer:
+  _target_: model.traditional_ml.train.train_model

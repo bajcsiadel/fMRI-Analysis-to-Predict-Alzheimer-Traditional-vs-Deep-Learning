@@ -1,0 +1,6 @@
+defaults:
+  - _feature_type_validation
+
+root: ${data.location}/Features
+extension: npz
+key: feature
