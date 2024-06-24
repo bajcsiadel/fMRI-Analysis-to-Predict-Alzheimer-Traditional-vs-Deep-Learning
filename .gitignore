@@ -1,6 +1,9 @@
 poetry.lock
+poetry.lock.*
 
 .env
+.env.*
+!.env.example
 
 .idea/
 **/__pycache__/
