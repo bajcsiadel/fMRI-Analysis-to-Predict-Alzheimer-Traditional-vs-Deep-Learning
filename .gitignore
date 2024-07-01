@@ -9,6 +9,7 @@ poetry.lock.*
 **/__pycache__/
 
 **/results/
+**/results
 **/output/
 **/*.csv
 
