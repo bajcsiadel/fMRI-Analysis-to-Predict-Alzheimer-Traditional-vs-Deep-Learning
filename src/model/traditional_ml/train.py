@@ -57,12 +57,14 @@ def train_model(cfg: TrainConfig, logger: TrainLogger):
     )
 
     # logging information
+    logger.info(f"Used feature: {cfg.feature.name}")
     logger.info(model)
     for data in (train_data, test_data):
         logger.info(data)
         logger.debug(data.label_to_target)
         logger.debug(data.metadata.columns)
         logger.debug("\n" + data.metadata.groupby("label")["label"].count().to_string(index=False))
+        logger.debug(data.data[0].shape)
 
     model.fit(train_data.data, train_data.targets)
 
