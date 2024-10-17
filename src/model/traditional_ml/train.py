@@ -82,7 +82,8 @@ def train_model(cfg: TrainConfig, logger: TrainLogger):
 
     predictions = copy.deepcopy(test_data.metadata)
     predictions["prediction"] = [test_data.target_to_label[pred] for pred in y_pred]
-    predictions["prediction_probability"] = y_pred_proba
+    for target, label in test_data.target_to_label.items():
+        predictions[f"probability_{label}"] = y_pred_proba[:, target]
     predictions.to_csv(logger.log_dir / "predictions.csv", index=False)
 
     confusion = confusion_matrix(test_data.targets, y_pred)
