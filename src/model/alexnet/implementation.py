@@ -12,16 +12,19 @@ class AlexNet(nn.Module):
         self.flatten = nn.Flatten()
 
         self.fc = nn.Sequential(
-            nn.Dropout(0.5, inplace=True),
+            nn.Dropout(0.5),
             nn.Linear(self.features.out_channels * 8 * 8, 4096),
             nn.ReLU(),
         )
         self.fc1 = nn.Sequential(
-            nn.Dropout(0.5, inplace=True),
+            nn.Dropout(0.5),
             nn.Linear(4096, 4096),
             nn.ReLU(),
         )
-        self.fc2 = nn.Sequential(nn.Linear(4096, n_classes))
+        self.fc2 = nn.Sequential(
+            nn.Linear(4096, n_classes),
+            nn.Softmax(),
+        )
 
         self.init_bias()  # initialize bias
 
@@ -59,7 +62,7 @@ if __name__ == "__main__":
     ic(
         summary(
             alex_net,
-            input_size=(1, 3, 299, 299),
+            input_size=(1, 3, 227, 227),
             verbose=0,
             col_names=("kernel_size", "input_size", "output_size", "num_params"),
         )

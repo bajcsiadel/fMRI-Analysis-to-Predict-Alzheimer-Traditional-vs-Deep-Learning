@@ -5,37 +5,35 @@ from utils.errors.file_errors import UnsupportedExtensionError
 
 
 @dc.dataclass
-class Metadata:
+class CSVFileConfig:
     filename: Path
     parameters: dict
+    must_exist: bool
 
 
 @dc.dataclass
 class DataConfig:
     location: Path
-    metadata: Metadata
+    metadata: CSVFileConfig
+    selected_patients: CSVFileConfig
 
     def __setattr__(self, key, value):
         match key:
             case "location":
                 if not value.exists():
-                    raise ValueError("Data location does not exist")
+                    raise ValueError(f"Data location {value} does not exist")
                 elif not value.is_dir():
-                    raise ValueError("Data location is not a directory")
-            case "metadata":
-                if not value.filename.exists():
-                    if "location" in vars(self):
-                        if not (self.location / value.filename).exists():
-                            raise ValueError("Data metafile does not exist")
-                        else:
-                            value.filename = self.location / value.filename
-                    else:
-                        raise ValueError("Data metafile does not exist")
-                elif not value.filename.is_file():
-                    raise ValueError("Data metafile is not a file")
-                elif value.filename.suffix != ".csv":
+                    raise ValueError(f"Data location {value} is not a directory")
+            case "metadata" | "selected_patients":
+                if not value.filename.is_absolute() and "location" in vars(self):
+                    value.filename = self.location / value.filename
+                if value.must_exist:
+                    if not value.filename.exists():
+                        raise ValueError(f"CSV file {key!r} does not exist")
+                    elif not value.filename.is_file():
+                        raise ValueError(f"{key!r} is not a file")
+                if value.filename.suffix != ".csv":
                     raise UnsupportedExtensionError("Data metafile is not a CSV file")
-
         super().__setattr__(key, value)
 
     @staticmethod

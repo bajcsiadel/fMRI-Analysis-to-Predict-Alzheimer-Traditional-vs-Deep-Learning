@@ -23,18 +23,19 @@ priority = "supplemental"
 
 [tool.poetry.dependencies]
 python = "^3.11,<3.13"
-albumentations = "^1.3.1"
+albumentations = "^1.4.10"
 hydra-core = "^1.3.2"
 icecream = "^2.1.3"
-numpy = "^2.0.0"
-matplotlib = "^3.8.2"
+# numpy is required for albumentations, matplotlib, seaborn, and torch
+# matplotlib is required for seaborn
+nilearn = "^0.10.4"
 opencv-contrib-python = "^4.8.1"
-pandas = "^2.1.1"
+# pandas is required for seaborn
 pipe = "^2.0"
 pydicom = "^2.4.4"
 python-dotenv = "^1.0.0"
 seaborn = "^0.13.2"
-scikit-learn = "^1.3.1"
+# scikit-learn is reuqired for albumentations
 tensorboard = "^2.16.2"
 torch = [
 	{version = "^2.3.0", source = "pypi", markers = "sys_platform == 'darwin'"},

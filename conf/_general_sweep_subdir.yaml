@@ -1,0 +1,5 @@
+hydra:
+  run:
+    dir: ${results_location:}/${hydra:job.override_dirname}/${now:%Y-%m-%d_%H-%M-%S}
+  sweep:
+    subdir: ${hydra:job.override_dirname}/${now:%Y-%m-%d_%H-%M-%S}

@@ -2,21 +2,20 @@ import dataclasses as dc
 import hydra
 import numpy as np
 import pandas as pd
-from icecream import ic
 from omegaconf import OmegaConf
-from sklearn.model_selection import train_test_split, StratifiedGroupKFold, \
-    StratifiedKFold
+from sklearn.model_selection import train_test_split
 
-from utils.config.types import DataConfig, OutputConfig
+from utils.config.resolvers import resolve_results_location
+from utils.config.types import DataConfig
 from utils.environment import get_env
-from utils.logger import Logger
+from utils.logger import BasicLogger
 
 
 @dc.dataclass
 class Config:
     data: DataConfig
-    output: OutputConfig
     seed: int
+    test_size: float
 
 
 def data_distribution(data: pd.DataFrame, column_name: str) -> pd.DataFrame:
@@ -40,7 +39,7 @@ def data_distribution(data: pd.DataFrame, column_name: str) -> pd.DataFrame:
     config_name="scripts_data_select_patients"
 )
 def main(cfg: Config):
-    logger = Logger(__name__, cfg.output)
+    logger = BasicLogger(__name__)
 
     try:
         cfg = OmegaConf.to_object(cfg)
@@ -109,33 +108,54 @@ def main(cfg: Config):
         logger.info("Average age per group after balancing:")
         logger.info(data.groupby("label")["age"].mean())
 
-        split = StratifiedKFold(n_splits=5, random_state=cfg.seed, shuffle=True)
-        train_idx, test_idx = next(split.split(data, data["label"]))
-        data["set"] = [""] * len(data)
-        data.iloc[train_idx, -1] = "train"
-        data.iloc[test_idx, -1] = "test"
+        train_data, test_data = train_test_split(
+            data,
+            test_size=cfg.test_size,
+            random_state=cfg.seed,
+            shuffle=True,
+            stratify=data["label"],
+        )
+        train_data["set"] = ["train"] * len(train_data)
+        test_data["set"] = ["test"] * len(test_data)
+
+        data = pd.concat((train_data, test_data), ignore_index=True)
 
         logger.info("Set distribution in train set:")
         logger.info(data_distribution(data, "set").to_string(index=False))
 
         logger.info("Label distribution in train set:")
-        logger.info(data_distribution(data.iloc[train_idx], "label").to_string(index=False))
+        logger.info(
+            data_distribution(
+                train_data, "label"
+            ).to_string(index=False)
+        )
 
         logger.info("Average age per group in train:")
-        logger.info(data.iloc[train_idx].groupby("label")["age"].mean())
+        logger.info(train_data.groupby("label")["age"].mean())
 
         logger.info("Label distribution in test set:")
-        logger.info(data_distribution(data.iloc[test_idx], "label").to_string(index=False))
+        logger.info(
+            data_distribution(
+                test_data, "label"
+            ).to_string(index=False)
+        )
 
         logger.info("Average age per group in test:")
-        logger.info(data.iloc[test_idx].groupby("label")["age"].mean())
+        logger.info(test_data.groupby("label")["age"].mean())
 
-        data.to_csv(cfg.data.metadata.filename.with_name("selected_patients.csv"), index=False)
+        data.to_csv(
+            cfg.data.metadata.filename.with_name(
+                cfg.data.selected_patients.filename.name
+            ),
+            index=False
+        )
     except Exception as e:
         logger.exception(e)
 
 
 config_store = DataConfig.add_type_validation()
-config_store = OutputConfig.add_type_validation(config_store=config_store)
 config_store.store(name="_script_config_validation", node=Config)
+
+resolve_results_location()
+
 main()

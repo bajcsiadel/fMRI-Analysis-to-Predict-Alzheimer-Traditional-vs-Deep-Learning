@@ -1,10 +1,15 @@
 poetry.lock
+poetry.lock.*
 
 .env
+.env.*
+!.env.example
 
 .idea/
 **/__pycache__/
 
+**/results/
+**/results
 **/output/
 **/*.csv
 

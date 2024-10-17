@@ -1,0 +1,30 @@
+defaults:
+  - _train_type_validation  # Validate train type. Defined in /src/utils/config/train.py
+  - _hydra_conf
+  - _self_
+  - data_information@data
+  - output_information@out_dirs
+  - feature: snL
+  - model: svm
+
+frequency: slow5
+
+cv_folds: 10
+
+image_properties:
+  width: 100
+  height: 100
+
+seed: 2024
+
+hydra:
+  run:
+    dir: ${results_location:}/${model.name}/${feature.name}/${hydra:job.override_dirname}/${now:%Y-%m-%d_%H-%M-%S}
+  sweep:
+    subdir: ${model.name}/${feature.name}/${hydra:job.override_dirname}/${now:%Y-%m-%d_%H-%M-%S}
+  job:
+    config:
+      override_dirname:
+        exclude_keys:
+          - model
+          - feature

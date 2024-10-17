@@ -1,6 +1,6 @@
 hydra:
   sweep:
-    dir: ${oc.env:RESULTS_LOCATION}/${hydra.job.name}
+    dir: ${results_location:}
   output_subdir: conf
   job_logging:
     formatters:

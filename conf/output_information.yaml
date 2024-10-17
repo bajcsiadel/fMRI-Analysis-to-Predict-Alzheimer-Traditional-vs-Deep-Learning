@@ -4,3 +4,4 @@ defaults:
 
 metadata_dir: metadata
 checkpoints_dir: checkpoints
+tensorboard_dir: tensorboard

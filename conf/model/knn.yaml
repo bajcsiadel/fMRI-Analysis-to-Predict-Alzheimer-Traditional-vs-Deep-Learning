@@ -1,0 +1,18 @@
+defaults:
+  - _model_type_validation  # Validate model type. Defined in /src/utils/config/model.py
+  - _self_
+
+name: KNN
+instance:
+  _target_: sklearn.neighbors.KNeighborsClassifier
+params:
+  n_neighbors:
+    - 5
+    - 10
+    - 50
+    - 100
+  weights:
+    - uniform
+    - distance
+trainer:
+  _target_: model.traditional_ml.train.train_model

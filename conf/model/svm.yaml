@@ -1,0 +1,33 @@
+defaults:
+  - _model_type_validation  # Validate model type. Defined in /src/utils/config/model.py
+  - _self_
+
+name: SVM
+instance:
+  _target_: sklearn.svm.SVC
+params:
+  C:
+    - 0.1
+    - 1
+    - 10
+    - 100
+  gamma:
+    - 0.0001
+    - 0.001
+    - 0.1
+    - 1
+  kernel:
+    - rbf
+    - poly
+  degree:
+    - 2
+    - 3
+    - 4
+    - 5
+  coef0:
+    - 0
+    - 9
+    - 10
+    - 100
+trainer:
+  _target_: model.traditional_ml.train.train_model

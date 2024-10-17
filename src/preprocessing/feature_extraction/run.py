@@ -8,11 +8,11 @@ Arguments
 =========
 
 -h, --help            show this help message and exit
-  -d DIR, --dir DIR     Directory containing the ROI signals
-  -o OUT_DIR, --out-dir OUT_DIR
-                        Output directory
-  -e REGEX, --regex REGEX
-                        Regular expression to match ROI signal files
+-d DIR, --dir DIR     Directory containing the ROI signals
+-o OUT_DIR, --out-dir OUT_DIR
+                    Output directory
+-e REGEX, --regex REGEX
+                    Regular expression to match ROI signal files
 
 Features:
   Select the features to disable
@@ -29,6 +29,10 @@ Features:
                         Disable dynamic associated high-order features
   --disable-static-associated-high-order
                         Disable static associated high-order features
+
+Result directories:
+  Name/location of the directories where the features are saved
+
   --dynamic-low-order-dir DYNAMIC_LOW_ORDER_DIR
                         Directory where dynamic low-order features are saved
   --static-low-order-dir STATIC_LOW_ORDER_DIR
@@ -46,9 +50,6 @@ Features:
                         Directory where static associated high-order features
                         are saved
 
-Result directories:
-  Name/location of the directories where the features are saved
-
 Feature parameters:
   Parameters for the features
 
@@ -56,11 +57,7 @@ Feature parameters:
                         Window length for the sliding window
   --stride STRIDE       Stride for the sliding window
 """
-
-from pathlib import Path
-
 import numpy as np
-from icecream import ic
 from tqdm import tqdm
 
 from preprocessing.feature_extraction.args import parse_args
