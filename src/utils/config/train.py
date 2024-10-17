@@ -32,6 +32,7 @@ class TrainConfig:
     cv_folds: int
     frequency: str
     image_properties: ImagePropertiesConfig
+    seed: int
 
     __frequency_values = ["full-band", "slow4", "slow5"]
 
@@ -44,6 +45,10 @@ class TrainConfig:
                 if value < 1:
                     raise ValueError(f"{key!r} must be greater than 0")
         super().__setattr__(key, value)
+
+    def __post_init__(self):
+        if "random_state" in self.model.params:
+            self.model.params["random_state"] = [self.seed]
 
     @staticmethod
     def add_type_validation(config_store=None, group=None):
