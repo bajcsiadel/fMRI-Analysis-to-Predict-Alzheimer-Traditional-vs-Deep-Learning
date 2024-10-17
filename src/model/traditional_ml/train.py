@@ -1,10 +1,11 @@
+import copy
 from typing import Callable
 
 import hydra
 import numpy as np
 import pandas as pd
 import torch
-from sklearn.metrics import accuracy_score, classification_report
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 from sklearn.model_selection import GridSearchCV
 from torchvision import transforms
 
@@ -75,8 +76,20 @@ def train_model(cfg: TrainConfig, logger: TrainLogger):
     pd.DataFrame(model.cv_results_).to_csv(logger.log_dir / "cv_results.csv", index=False)
 
     y_pred = model.predict(test_data.data)
+    y_pred_proba = model.predict_proba(test_data.data)
 
     accuracy = accuracy_score(y_pred, test_data.targets)
+
+    predictions = copy.deepcopy(test_data.metadata)
+    predictions["prediction"] = [test_data.target_to_label[pred] for pred in y_pred]
+    predictions["prediction_probability"] = y_pred_proba
+    predictions.to_csv(logger.log_dir / "predictions.csv", index=False)
+
+    confusion = confusion_matrix(test_data.targets, y_pred)
+    classes = [test_data.target_to_label[i] for i in range(confusion.shape[0])]
+    pd.DataFrame(confusion, index=pd.Index(classes, name="Actual"), columns=pd.Index(classes, name="Predicted")).to_csv(
+        logger.log_dir / "confusion_matrix.csv"
+    )
 
     # Print the accuracy of the model
     logger.info(f"The model is {accuracy:.2%} accurate")
