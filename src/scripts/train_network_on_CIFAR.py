@@ -11,6 +11,7 @@ from torch.utils.data import DataLoader, SubsetRandomSampler
 from torchvision import transforms, datasets
 
 from utils.config.output import OutputConfig
+from utils.config.resolvers import resolve_results_location
 from utils.environment import get_env
 from utils.helpers import get_device
 from utils.logger import TrainLogger
@@ -24,6 +25,7 @@ class Config:
     learning_rate: float
     disable_gpu: bool
     pretrained: bool
+    seed: int
     out_dirs: OutputConfig
     cifar_location: Path
 
@@ -184,18 +186,27 @@ def train_model_CIFAR10(
     batch_size: int = 64,
     learning_rate: float = 0.005,
     disable_gpu: bool = False,
+    pretrained: bool = False,
+    seed: int = 2024,
 ):
     n_classes = 10
+    image_shape = (227, 227)
+
+    torch.manual_seed(seed)
+    np.random.seed(seed)
 
     match model:
         case str():
             match model.lower():
                 case "alexnet":
-                    from model.alexnet import AlexNet
-                    model = AlexNet(n_classes=n_classes)
+                    from model.neural_net.alexnet import AlexNet
+                    model = AlexNet(n_classes=n_classes, image_shape=image_shape)
                 case "inceptionv2":
-                    from model.inception_v2 import InceptionV2
+                    from model.neural_net.inception_v2 import InceptionV2
                     model = InceptionV2(n_classes=n_classes)
+                case "torch-alexnet":
+                    from torchvision.models.alexnet import alexnet
+                    model = alexnet(num_classes=n_classes, pretrained=pretrained)
                 case _:
                     raise ValueError(f"Model {model} not supported")
         case torch.nn.Module():
@@ -211,12 +222,14 @@ def train_model_CIFAR10(
         data_dir=cifar_location,
         batch_size=batch_size,
         augment=False,
-        random_seed=1
+        random_seed=seed,
+        image_shape=image_shape
     )
 
     test_loader = get_test_loader(
         data_dir=cifar_location,
-        batch_size=batch_size
+        batch_size=batch_size,
+        image_shape=image_shape
     )
 
     # Loss and optimizer
@@ -298,7 +311,9 @@ def main(cfg: Config):
             n_epochs=cfg.n_epochs,
             batch_size=cfg.batch_size,
             learning_rate=cfg.learning_rate,
-            disable_gpu=cfg.disable_gpu
+            disable_gpu=cfg.disable_gpu,
+            pretrained=cfg.pretrained,
+            seed=cfg.seed,
         )
     except Exception as e:
         logger.exception(e)
@@ -307,6 +322,7 @@ def main(cfg: Config):
 
 
 if __name__ == "__main__":
+    resolve_results_location()
     config_store = OutputConfig.add_type_validation()
     config_store.store(name="_script_config_validation", node=Config)
     main()
