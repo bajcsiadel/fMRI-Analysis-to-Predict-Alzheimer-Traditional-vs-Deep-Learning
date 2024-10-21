@@ -4,7 +4,7 @@ from typing import Optional
 import torch
 from torch import nn
 
-from model.inception_v2.base import InceptionFeatures
+from model.neural_net.inception_v2.base import InceptionFeatures
 
 InceptionOutputs = namedtuple("InceptionOutputs", ["logits", "aux_logits"])
 InceptionOutputs.__annotations__ = {
@@ -50,7 +50,7 @@ if __name__ == "__main__":
     from icecream import ic
     from tensorboard import summary
 
-    from model.inception_v2.base import (
+    from model.neural_net.inception_v2.base import (
         GridReduction,
         InceptionModuleF5,
         InceptionModuleF6,

@@ -1,11 +1,15 @@
+import numpy as np
+import torch
 from torch import nn
+from torch.utils.tensorboard.summary import image
 
-from model.alexnet.base import AlexNetFeatures
+from model.neural_net.alexnet.base import AlexNetFeatures
 
 
 class AlexNet(nn.Module):
-    def __init__(self, n_classes, n_color_channels=3):
+    def __init__(self, n_classes, image_shape, n_color_channels=3):
         super().__init__()
+        self.__image_shape = image_shape
 
         self.features = AlexNetFeatures(n_color_channels=n_color_channels)
 
@@ -13,7 +17,7 @@ class AlexNet(nn.Module):
 
         self.fc = nn.Sequential(
             nn.Dropout(0.5),
-            nn.Linear(self.features.out_channels * 8 * 8, 4096),
+            nn.Linear(np.prod(self.__feature_shape()), 4096),
             nn.ReLU(),
         )
         self.fc1 = nn.Sequential(
@@ -23,10 +27,16 @@ class AlexNet(nn.Module):
         )
         self.fc2 = nn.Sequential(
             nn.Linear(4096, n_classes),
-            nn.Softmax(),
+            nn.Softmax(dim=1),
         )
 
         self.init_bias()  # initialize bias
+
+    def __feature_shape(self):
+        x = torch.randn(1, self.features.in_channels, *self.__image_shape)
+        out = self.features(x)
+
+        return out.shape
 
     def init_bias(self):
         for layer in self.modules():
@@ -48,8 +58,8 @@ class AlexNet(nn.Module):
 
 
 class ModifiedAlexNet(AlexNet):
-    def __init__(self, n_classes, n_color_channels=3):
-        super().__init__(n_classes=n_classes, n_color_channels=n_color_channels)
+    def __init__(self, n_classes, image_shape, n_color_channels=3):
+        super().__init__(n_classes=n_classes, image_shape=image_shape, n_color_channels=n_color_channels)
         # replace ReLU with Softmax
         self.fc1[-1] = nn.Softmax(dim=1)
 
@@ -58,7 +68,7 @@ if __name__ == "__main__":
     from icecream import ic
     from torchinfo import summary
 
-    alex_net = AlexNet(n_classes=3)
+    alex_net = AlexNet(n_classes=3, image_shape=(227, 227))
     ic(
         summary(
             alex_net,

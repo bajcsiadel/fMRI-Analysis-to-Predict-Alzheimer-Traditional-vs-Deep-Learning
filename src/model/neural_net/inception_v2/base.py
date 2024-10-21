@@ -8,7 +8,7 @@ from torch.functional import F
 
 
 class BasicConv2d(nn.Module):
-    def __init__(self, in_channels, out_channels, **kwargs):
+    def __init__(self, in_channels: int, out_channels: int, **kwargs):
         super().__init__()
         self.conv = nn.Conv2d(in_channels, out_channels, bias=False, **kwargs)
         self.bn = nn.BatchNorm2d(out_channels, eps=0.001)
@@ -20,7 +20,7 @@ class BasicConv2d(nn.Module):
 
 
 class RepeatedModule(nn.Sequential):
-    def __init__(self, module, n_repeats):
+    def __init__(self, module: nn.Module, n_repeats: int):
         super().__init__()
         for _ in range(n_repeats):
             self.add_module(f"{module.__class__.__name__}_{_}", copy.deepcopy(module))
@@ -30,17 +30,17 @@ class RepeatedModule(nn.Sequential):
 
 
 class InceptionBranch(nn.Sequential):
-    def __init__(self, *modules, sub_branches=None):
+    def __init__(self, *modules: nn.Module, sub_branches=None):
         super().__init__(*modules)
         if sub_branches is None:
             self._sub_branches = []
         else:
             self._sub_branches = sub_branches
 
-    def add_sub_branch(self, module):
+    def add_sub_branch(self, module: nn.Module):
         self._sub_branches.append(module)
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         outs = []
         out_1 = super().forward(x)
         if len(self._sub_branches) > 0:
@@ -89,7 +89,7 @@ class InceptionModuleBase(nn.Module):
                 self._structured_modules[module_name] = module
                 previous_module_name = module_name
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         outs = []
         for branch in self._structured_modules.values():
             outs.append(branch(x))
@@ -98,7 +98,7 @@ class InceptionModuleBase(nn.Module):
 
 
 class GridReduction(InceptionModuleBase):
-    def __init__(self, in_features, out_features, filter_size_1x1=None):
+    def __init__(self, in_features: int, out_features: int | list[int], filter_size_1x1: int | list[int] = None):
         super(GridReduction, self).__init__()
         if filter_size_1x1 is None:
             filter_size_1x1 = out_features
@@ -155,7 +155,7 @@ class GridReduction(InceptionModuleBase):
 
 
 class InceptionModuleF5(InceptionModuleBase):
-    def __init__(self, in_features, out_features):
+    def __init__(self, in_features: int, out_features: int | list[int]):
         super().__init__()
         if type(out_features) is int:
             out_features = [out_features] * 4
@@ -231,7 +231,7 @@ class InceptionModuleF6(InceptionModuleBase):
     equivalent to torchvision.models.inception.InceptionC
     """
 
-    def __init__(self, in_features, out_features, n=7, filter_size_1x1=None):
+    def __init__(self, in_features: int, out_features: int | list[int], n: int = 7, filter_size_1x1: int | list[int] = None):
         super().__init__()
         if type(out_features) is int:
             out_features = [out_features] * 4
@@ -328,7 +328,7 @@ class InceptionModuleF6(InceptionModuleBase):
 
 
 class InceptionModuleF7(InceptionModuleBase):
-    def __init__(self, in_features, out_features):
+    def __init__(self, in_features: int, out_features: int | list[int]):
         super().__init__()
         if type(out_features) is int:
             out_features = [out_features] * 6
@@ -431,7 +431,7 @@ class InceptionModuleF7(InceptionModuleBase):
 
 
 class InceptionAux(nn.Module):
-    def __init__(self, in_channels, n_classes):
+    def __init__(self, in_channels: int, n_classes: int):
         super().__init__()
         self.pool1 = nn.AvgPool2d(kernel_size=5, stride=3)
         self.conv1 = BasicConv2d(in_channels, 128, kernel_size=1)
