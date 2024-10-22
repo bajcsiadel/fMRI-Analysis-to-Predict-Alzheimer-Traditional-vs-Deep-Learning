@@ -20,6 +20,14 @@ class BasicLogger(logging.Logger):
 
     def __init__(self, name):
         super().__init__(name)
+
+        if type(HydraConfig.get().verbose) is bool or (
+                type(HydraConfig.get().verbose) is str and
+                HydraConfig.get().verbose.lower() == name.lower()
+        ):
+            # set debug level
+            self.setLevel(logging.DEBUG)
+
         self.parent = logging.root
 
         self._log_dir = Path(HydraConfig.get().runtime.output_dir)
@@ -125,6 +133,7 @@ class TrainLogger(BasicLogger):
 
     def __init__(self, name, output_dirs):
         super().__init__(name)
+
         self.__output_dirs = output_dirs
 
         # Ensure the directories exist
