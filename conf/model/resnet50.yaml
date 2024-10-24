@@ -1,0 +1,14 @@
+defaults:
+  - _model_type_validation  # Validate model type. Defined in /src/utils/config/model.py
+  - _neural_network_params@_here_
+  - _self_
+
+name: ResNet18
+instance:
+  _target_: model.neural_net.SklearnWrapper
+  model:
+    _target_: model.neural_net.resnet.implementation.ResNet
+    size: 50
+params: {}
+trainer:
+  _target_: model.neural_net.train.train_model

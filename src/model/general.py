@@ -79,6 +79,12 @@ def log_results(model, test_data: CustomDataset, logger: TrainLogger):
                                            index=False)
     y_pred = model.predict(test_data.data)
     y_pred_proba = model.predict_proba(test_data.data)
+
+    if type(y_pred) == tuple:
+        logger.info(f"The model loss on the test set: {y_pred[1]} {y_pred_proba[1]}")
+        y_pred = y_pred[0]
+        y_pred_proba = y_pred_proba[0]
+
     accuracy = accuracy_score(y_pred, test_data.targets)
     predictions = copy.deepcopy(test_data.metadata)
     predictions["prediction"] = [test_data.target_to_label[pred] for pred in y_pred]
@@ -92,5 +98,5 @@ def log_results(model, test_data: CustomDataset, logger: TrainLogger):
         logger.log_dir / "confusion_matrix.csv"
     )
     # Print the accuracy of the model
-    logger.info(f"The model is {accuracy:.2%} accurate")
+    logger.info(f"The model is {accuracy:.2%} ({accuracy}) accurate")
     logger.info(f"\n{classification_report(test_data.targets, y_pred)}")

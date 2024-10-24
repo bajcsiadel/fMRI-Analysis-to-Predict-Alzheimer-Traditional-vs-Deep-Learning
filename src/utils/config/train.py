@@ -31,6 +31,7 @@ class TrainConfig:
     out_dirs: OutputConfig
     cv_folds: int
     frequency: str
+    gpu: int
     image_properties: ImagePropertiesConfig
     seed: int
 

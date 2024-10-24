@@ -1,7 +1,9 @@
+import copy
 from typing import Callable
 
 import numpy as np
 import pandas as pd
+import torch
 from torch.utils.data import Dataset
 
 from utils.config.data import CSVFileConfig
@@ -13,7 +15,7 @@ def _identity_transform(x):
 
 
 class CustomDataset(Dataset):
-    def __init__(self, metafile: CSVFileConfig, frequency: str, feature: FeatureConfig, set_: str, transform: Callable = None):
+    def __init__(self, metafile: CSVFileConfig, frequency: str, feature: FeatureConfig, set_: str, transform: Callable = None, target_transform: Callable = None):
         self._data_details = metafile
         self._feature_details = feature
 
@@ -43,17 +45,29 @@ class CustomDataset(Dataset):
         else:
             self._transform = transform
 
-        self._targets = self._metadata["label"].map(self._target_transform).values
-        self._data = np.array(
-            [
-                self._transform(
-                    np.load(
-                        feature.root / frequency / feature.dir_name / f"{row['filename']}.{feature.extension}"
-                    )[feature.key]
-                )
-                for _, row in self._metadata.iterrows()
-            ]
-        )
+        if target_transform is None:
+            self._target_transform = _identity_transform
+        else:
+            self._target_transform = target_transform
+
+        self._targets = (self._metadata["label"]
+                         .map(lambda label: self._label_to_target[label])
+                         .map(self._target_transform).values)
+        self._data = [
+            self._transform(
+                np.load(
+                    feature.root / frequency / feature.dir_name / f"{row['filename']}.{feature.extension}"
+                )[feature.key]
+            )
+            for _, row in self._metadata.iterrows()
+        ]
+
+        match self._data[0]:
+            case np.ndarray():
+                self._data = np.array(self._data)
+            case torch.Tensor():
+                self._data = torch.stack(self._data)
+                self._targets = torch.stack(self._targets.tolist())
 
     @property
     def metadata(self):
@@ -69,14 +83,19 @@ class CustomDataset(Dataset):
 
     @property
     def targets(self):
-        return self._targets.copy()
+        return copy.deepcopy(self._targets)
 
     @property
     def data(self):
-        return self._data.copy()
+        return copy.deepcopy(self._data)
 
-    def _target_transform(self, label):
-        return self._label_to_target[label]
+    @property
+    def n_classes(self):
+        return len(np.unique(self._targets))
+
+    @property
+    def feature_name(self):
+        return self._feature_details.name
 
     def __repr__(self):
         return f"CustomDataset(file={self._data_details.filename}, set={self._set}, n_samples={len(self)})"
