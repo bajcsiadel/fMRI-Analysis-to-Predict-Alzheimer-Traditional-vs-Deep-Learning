@@ -1,5 +1,10 @@
 # Feature extraction
 
+Call the following command to extract the features from the ROI signals:
+```shell
+python preprocessing/feature_extraction/run.py 
+```
+
 From the generated ROI signals functional connectivity (FC) features are extracted
 based on [^Zhang-2017]. Three types of FC are extracted:
 1. traditional low-order FC
