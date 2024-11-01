@@ -72,42 +72,42 @@ def define_parser():
     result_dirs.add_argument(
         "--dynamic-low-order-dir",
         dest="dynamic_low_order_dir",
-        type=Path,
+        type=str,
         default="DN_L",
         help="Directory where dynamic low-order features are saved"
     )
     result_dirs.add_argument(
         "--static-low-order-dir",
         dest="static_low_order_dir",
-        type=Path,
+        type=str,
         default="SN_L",
         help="Directory where static low-order features are saved"
     )
     result_dirs.add_argument(
         "--dynamic-topographical-high-order-dir",
         dest="dynamic_topographical_high_order_dir",
-        type=Path,
+        type=str,
         default="DN_H",
         help="Directory where dynamic topographical high-order features are saved"
     )
     result_dirs.add_argument(
         "--static-topographical-high-order-dir",
         dest="static_topographical_high_order_dir",
-        type=Path,
+        type=str,
         default="SN_H",
         help="Directory where static topographical high-order features are saved"
     )
     result_dirs.add_argument(
         "--dynamic-associated-high-order-dir",
         dest="dynamic_associated_high_order_dir",
-        type=Path,
+        type=str,
         default="DN_A",
         help="Directory where dynamic associated high-order features are saved"
     )
     result_dirs.add_argument(
         "--static-associated-high-order-dir",
         dest="static_associated_high_order_dir",
-        type=Path,
+        type=str,
         default="SN_A",
         help="Directory where static associated high-order features are saved"
     )
@@ -141,18 +141,5 @@ def parse_args():
 
     if args.out_dir is None:
         args.out_dir = args.dir / "ADNI" / "Features"
-
-    for param_name in (
-            "dynamic_low_order_dir",
-            "static_low_order_dir",
-            "dynamic_topographical_high_order_dir",
-            "static_topographical_high_order_dir",
-            "dynamic_associated_high_order_dir",
-            "static_associated_high_order_dir"
-    ):
-        result_dir = getattr(args, param_name)
-        if not result_dir.is_absolute():
-            setattr(args, param_name, args.out_dir / result_dir)
-            getattr(args, param_name).mkdir(parents=True, exist_ok=True)
 
     return args

@@ -79,8 +79,9 @@ args = parse_args()
 signal_files = [_ for _ in args.dir.rglob(args.regex)]
 for signal_file in tqdm(signal_files, desc="Extracting featured from ROI signals"):
     signal = np.load(signal_file)["signal"]
+    frequency = signal_file.parent.name.split("_ROISignal")[0]
 
-    out_dir = args.out_dir / signal_file.parent.name.split("_")[0]
+    out_dir = args.out_dir / frequency
     feature_file_name = "_".join(signal_file.name.split("_")[1:])
 
     results = {}
