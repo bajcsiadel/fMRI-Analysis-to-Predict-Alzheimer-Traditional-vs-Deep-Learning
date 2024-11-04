@@ -15,11 +15,13 @@ def _identity_transform(x):
 
 
 class CustomDataset(Dataset):
-    def __init__(self, metafile: CSVFileConfig, frequency: str, feature: FeatureConfig, set_: str, transform: Callable = None, target_transform: Callable = None):
+    def __init__(self, metafile: CSVFileConfig, classes: list[str], frequency: str, feature: FeatureConfig, set_: str, transform: Callable = None, target_transform: Callable = None):
         self._data_details = metafile
         self._feature_details = feature
 
         self._metadata = pd.read_csv(metafile.filename, **metafile.parameters)
+
+        self._metadata = self._metadata[self._metadata["label"].isin(classes)]
 
         if set_ not in ["all", "train", "test"]:
             raise ValueError(

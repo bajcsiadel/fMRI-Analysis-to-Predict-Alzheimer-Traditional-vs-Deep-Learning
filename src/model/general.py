@@ -12,6 +12,7 @@ from utils.logger import TrainLogger
 
 def get_data(
     meta_file: CSVFileConfig,
+    classes: list[str],
     frequency: str,
     feature: FeatureConfig,
     logger: TrainLogger,
@@ -22,14 +23,17 @@ def get_data(
     Get the training and testing data.
 
     :param meta_file: metadata file information
+    :param classes: classes to use
     :param frequency: frequency to use in the filter
     :param feature: feature information
     :param logger:
     :param transform: transformation to apply to the data
+    :param target_transform: transformation to apply to the target
     :return: training and testing data
     """
     train_data = CustomDataset(
         meta_file,
+        classes,
         frequency,
         feature,
         "train",
@@ -38,6 +42,7 @@ def get_data(
     )
     test_data = CustomDataset(
         meta_file,
+        classes,
         frequency,
         feature,
         "test",

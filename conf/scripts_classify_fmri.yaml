@@ -8,6 +8,7 @@ defaults:
   - model: svm
 
 frequency: slow5
+classes: ???  # Set the classes used in the classification: CN-vs-AD, CN-vs-LMCI, etc.
 
 cv_folds: 10
 
@@ -30,3 +31,4 @@ hydra:
         exclude_keys:
           - model
           - feature
+          - gpu

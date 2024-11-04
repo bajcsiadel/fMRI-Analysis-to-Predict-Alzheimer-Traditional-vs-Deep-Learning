@@ -7,12 +7,14 @@ from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.metrics import accuracy_score
 from torch import nn
 from torch.utils.tensorboard import SummaryWriter
+from utils.logger import TrainLogger
 
 
 class SklearnWrapper(BaseEstimator, ClassifierMixin):
     def __init__(
         self,
         model: nn.Module,
+        logger: TrainLogger,
         state_dict: dict = None,
         epochs: int = 100,
         batch_size: int = 32,
@@ -39,6 +41,7 @@ class SklearnWrapper(BaseEstimator, ClassifierMixin):
         self.criterion_type = criterion
         self.criterion = criterion()
         self.device = device
+        self.experiment_name = f"E={self.epochs}-BS={self.batch_size}-optimizer={self.optimizer_type.__name__}-LR={self.lr}"
 
         self.__is_fitted = False
         self.run_index = 1 if run_index is None else run_index
@@ -50,6 +53,9 @@ class SklearnWrapper(BaseEstimator, ClassifierMixin):
                                    f"criterion_{self.criterion_type.__name__}"
         ))
         self.current_epoch = 0
+
+        self.logger = logger
+        self.__max_accuracy = 0.5
 
     def fit(self, X, y, target, X_valid=None, y_valid=None) -> "SklearnWrapper":
         """
@@ -89,7 +95,21 @@ class SklearnWrapper(BaseEstimator, ClassifierMixin):
             self.tensorboard.add_scalar("Loss/train/epoch", total_loss / steps, self.current_epoch)
             self.tensorboard.add_scalar("Accuracy/train/epoch", total_accuracy / len(X), self.current_epoch)
 
-            self.score(X_valid, y_valid, test=True)
+            validation_accuracy = self.score(X_valid, y_valid, test=True)
+            if np.abs(validation_accuracy - self.__max_accuracy) < 0.025:
+                self.__max_accuracy = validation_accuracy
+                torch.save(
+                    {
+                        "model": self.model.state_dict(),
+                        "optimizer": self.optimizer.state_dict(),
+                        "epoch": self.current_epoch,
+                    },
+                    self.logger.checkpoint_dir
+                        / self.experiment_name
+                        / f"run-{self.run_index}-"
+                          f"epoch-{self.current_epoch}-"
+                          f"accu-{validation_accuracy:.4f}.pt"
+                )
 
         self.__is_fitted = True
         return self

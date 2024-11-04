@@ -42,7 +42,7 @@ def train_model(cfg: TrainConfig, logger: TrainLogger):
     model = GridSearchCV(model, cfg.model.params, cv=cfg.cv_folds)
 
     train_data, test_data = general.get_data(
-        cfg.data.selected_patients, cfg.frequency, cfg.feature, logger,
+        cfg.data.selected_patients, cfg.class_list, cfg.frequency, cfg.feature, logger,
         transform=transform_inputs(cfg.image_properties.shape),
     )
 
