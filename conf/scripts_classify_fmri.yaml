@@ -21,9 +21,9 @@ seed: 2024
 
 hydra:
   run:
-    dir: ${results_location:}/${model.name}/${feature.name}/${hydra:job.override_dirname}/${now:%Y-%m-%d_%H-%M-%S}
+    dir: ${results_location:}/${model.name}-${model.trainer._target_}/${feature.name}/${sanitize_dir_name:${hydra:job.override_dirname}}/${now:%Y-%m-%d_%H-%M-%S}
   sweep:
-    subdir: ${model.name}/${feature.name}/${hydra:job.override_dirname}/${now:%Y-%m-%d_%H-%M-%S}
+    subdir: ${model.name}-${model.trainer._target_}/${feature.name}/${sanitize_dir_name:${hydra:job.override_dirname}}/${now:%Y-%m-%d_%H-%M-%S}
   job:
     config:
       override_dirname:
