@@ -91,4 +91,4 @@ def train_model(cfg: TrainConfig, logger: TrainLogger):
 
     model.fit(train_data.data, train_data.targets.cpu().detach().numpy(), target=train_data.targets, X_valid=test_data.data, y_valid=test_data.targets)
 
-    log_results(model, test_data, logger)
+    general.log_cv_results(model, test_data, logger)

@@ -65,7 +65,7 @@ def get_data(
     return train_data, test_data
 
 
-def log_results(model, test_data: CustomDataset, logger: TrainLogger):
+def log_cv_results(model, test_data: CustomDataset, logger: TrainLogger):
     """
     Log the results of the model.
     :param model: trained model
@@ -77,6 +77,17 @@ def log_results(model, test_data: CustomDataset, logger: TrainLogger):
     logger.info(f"CV results saved to {logger.log_dir / 'cv_results.csv'}")
     pd.DataFrame(model.cv_results_).to_csv(logger.log_dir / "cv_results.csv",
                                            index=False)
+    log_results(model, test_data, logger)
+
+
+
+def log_results(model, test_data: CustomDataset, logger: TrainLogger):
+    """
+    Log the results of the model.
+    :param model: trained model
+    :param test_data: testing data
+    :param logger:
+    """
     y_pred = model.predict(test_data.data)
     y_pred_proba = model.predict_proba(test_data.data)
 

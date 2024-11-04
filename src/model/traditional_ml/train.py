@@ -1,18 +1,16 @@
-import copy
 from typing import Callable
 
 import hydra
 import numpy as np
-import pandas as pd
 import torch
-from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 from sklearn.model_selection import GridSearchCV
 from torchvision import transforms
 
 from model import general
-from model.general import log_results
 from utils.config.train import TrainConfig
 from utils.logger import TrainLogger
+
+from src.model.general import log_cv_results
 
 
 def transform_inputs(image_shape: tuple[int, int]) -> Callable:
@@ -54,4 +52,4 @@ def train_model(cfg: TrainConfig, logger: TrainLogger):
 
     model.fit(train_data.data, train_data.targets)
 
-    log_results(model, test_data, logger)
+    log_cv_results(model, test_data, logger)
