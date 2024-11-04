@@ -71,6 +71,8 @@ class CustomDataset(Dataset):
                 self._data = torch.stack(self._data)
                 self._targets = torch.stack(self._targets.tolist())
 
+        self.batches = None
+
     @property
     def metadata(self):
         return self._metadata.copy()
@@ -98,6 +100,26 @@ class CustomDataset(Dataset):
     @property
     def feature_name(self):
         return self._feature_details.name
+
+    def get_batch(self, batch_size: int, index: int):
+        if self.batches is None:
+            self.batches = []
+            for class_index in range(self.n_classes):
+                indices = np.where(self._targets == class_index)[0]
+                samples_in_batch = int(len(indices) / len(self) * batch_size)
+                np.random.shuffle(indices)
+                if len(self.batches) == 0:
+                    self.batches = [
+                        indices[i:i+samples_in_batch]
+                        for i in range(0, len(indices), samples_in_batch)
+                    ]
+                else:
+                    self.batches = [
+                        np.concatenate((self.batches[batch_index], indices[i:i+samples_in_batch]))
+                        for batch_index, i in enumerate(range(0, len(indices), samples_in_batch))
+                    ]
+        indices = self.batches[index]
+        return self._data[indices], self._targets[indices]
 
     def __repr__(self):
         return f"CustomDataset(file={self._data_details.filename}, set={self._set}, n_samples={len(self)})"

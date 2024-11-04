@@ -8,7 +8,6 @@ from sklearn.model_selection import GridSearchCV
 from torchvision import transforms
 
 from model import general
-from model.general import log_results
 from model.neural_net import SklearnWrapper
 from utils.config.train import TrainConfig
 from utils.logger import TrainLogger
@@ -93,3 +92,58 @@ def train_model(cfg: TrainConfig, logger: TrainLogger):
     model.fit(train_data.data, train_data.targets.cpu().detach().numpy(), target=train_data.targets, X_valid=test_data.data, y_valid=test_data.targets)
 
     general.log_cv_results(model, test_data, logger)
+
+
+def debug_model(cfg: TrainConfig, logger: TrainLogger):
+    """
+    Test a neural network model on a single batch.
+
+    :param cfg:
+    :param logger:
+    """
+    device = get_device(cfg.gpu)
+    train_data, test_data = general.get_data(
+        cfg.data.selected_patients, cfg.class_list, cfg.frequency, cfg.feature, logger,
+        transform=transform_inputs(cfg.image_properties.shape, device),
+        target_transform=lambda target: torch.tensor(target, dtype=torch.float)
+    )
+    if len(train_data.target_to_label) != 2:
+        raise ValueError("Only binary classification is supported")
+
+    n_classes = len(train_data.target_to_label)
+    in_channels = train_data.data[0].shape[0]
+
+    cfg.model.params["criterion"] = [hydra.utils.get_class(criterion) for criterion in cfg.model.params["criterion"]]
+    cfg.model.params["optimizer"] = [hydra.utils.get_class(optimizer) for optimizer in cfg.model.params["optimizer"]]
+
+    multi_option_params = [len(param) > 1 for param in cfg.model.params.values()]
+    if any(multi_option_params):
+        logger.warning("Debugging does not perform GridSearchCV, only the first option will be used.")
+    cfg.model.params = {key: value[0] for key, value in cfg.model.params.items()}
+
+    logger.info(cfg.model.params)
+
+    cfg.model.instance["model"]["n_classes"] = n_classes
+    cfg.model.instance["model"]["in_channels"] = in_channels
+    cfg.model.instance["model"]["device"] = device
+    cfg.model.instance["logger"] = logger
+    cfg.model.instance["tensorboard_dir"] = logger.log_dir / "tensorboard"
+    model: SklearnWrapper = hydra.utils.instantiate(
+        cfg.model.instance,
+        device=device,
+        **cfg.model.params,
+    )
+
+    logger.info(model)
+
+    X_train, y_train = train_data.get_batch(cfg.model.params["batch_size"], 0)
+
+    logger.debug(y_train.unique(return_counts=True))
+
+    X_valid, y_valid = train_data.get_batch(cfg.model.params["batch_size"], 1)
+
+    logger.debug(y_valid.unique(return_counts=True))
+
+    model.fit(X_train, y_train.cpu().detach().numpy(), target=y_train, X_valid=X_valid, y_valid=y_valid)
+
+    general.log_results(model, test_data, logger)
