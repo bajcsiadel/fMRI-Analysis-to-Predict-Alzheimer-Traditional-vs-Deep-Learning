@@ -67,7 +67,7 @@ class ResNet(BaseEstimator, torch_resnet.ResNet):
             self.conv1 = nn.Conv2d(
                 in_channels, self.conv1.out_channels,
                 self.conv1.kernel_size, self.conv1.stride, self.conv1.padding,
-                self.conv1.dilation, self.conv1.groups, self.conv1.bias,
+                self.conv1.dilation, self.conv1.groups, self.conv1.bias is not None,
                 self.conv1.padding_mode, dtype=torch.float
             )
 
