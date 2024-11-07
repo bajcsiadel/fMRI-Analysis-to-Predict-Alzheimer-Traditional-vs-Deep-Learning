@@ -79,7 +79,6 @@ def train_model(cfg: TrainConfig, logger: TrainLogger):
     cfg.model.instance["model"]["in_channels"] = in_channels
     cfg.model.instance["model"]["device"] = device
     cfg.model.instance["logger"] = logger
-    cfg.model.instance["tensorboard_dir"] = logger.log_dir / "tensorboard"
     nn_sklearn_model: SklearnWrapper = hydra.utils.instantiate(
         cfg.model.instance,
         device=device,
@@ -127,7 +126,6 @@ def debug_model(cfg: TrainConfig, logger: TrainLogger):
     cfg.model.instance["model"]["in_channels"] = in_channels
     cfg.model.instance["model"]["device"] = device
     cfg.model.instance["logger"] = logger
-    cfg.model.instance["tensorboard_dir"] = logger.log_dir / "tensorboard"
     model: SklearnWrapper = hydra.utils.instantiate(
         cfg.model.instance,
         device=device,
