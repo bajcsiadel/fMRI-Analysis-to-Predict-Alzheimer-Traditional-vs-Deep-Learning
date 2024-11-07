@@ -121,9 +121,11 @@ def main(cfg: Config):
         logger.info("Average age per group after balancing:")
         logger.info(data.groupby("label")["age"].mean())
 
+        test_size_per_label = int(np.round(len(data) * cfg.test_size / len(final_data), 0))
+
         train_data, test_data = train_test_split(
             data,
-            test_size=cfg.test_size,
+            test_size=test_size_per_label * len(final_data),
             random_state=cfg.seed,
             shuffle=True,
             stratify=data["label"],
