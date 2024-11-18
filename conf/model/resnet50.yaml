@@ -3,7 +3,7 @@ defaults:
   - _neural_network_params@_here_
   - _self_
 
-name: ResNet18
+name: ResNet50
 instance:
   _target_: model.neural_net.SklearnWrapper
   model:

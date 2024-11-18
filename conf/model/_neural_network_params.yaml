@@ -14,9 +14,6 @@ params:
     - 1500
   batch_size:
     - 32
-    - 64
-    - 128
-    - 256
   criterion:
     - torch.nn.BCEWithLogitsLoss
 #    - torch.nn.CrossEntropyLoss

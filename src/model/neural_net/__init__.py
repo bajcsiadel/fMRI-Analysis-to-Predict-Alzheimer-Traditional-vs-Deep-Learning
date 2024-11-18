@@ -95,21 +95,21 @@ class SklearnWrapper(BaseEstimator, ClassifierMixin):
             self.tensorboard.add_scalars(f"Epochwise/accuracy/run-{self.run_index}", {"train": total_accuracy / len(X)}, self.current_epoch)
 
             validation_accuracy = self.score(X_valid, y_valid, test=True)
-            if np.abs(validation_accuracy - self.__max_accuracy) < 0.025:
-                self.__max_accuracy = validation_accuracy
-                (self.logger.checkpoint_dir / self.experiment_name).mkdir(exist_ok=True)
-                torch.save(
-                    {
-                        "model": self.model.state_dict(),
-                        "optimizer": self.optimizer.state_dict(),
-                        "epoch": self.current_epoch,
-                    },
-                    self.logger.checkpoint_dir
-                        / self.experiment_name
-                        / f"run-{self.run_index}-"
-                          f"epoch-{self.current_epoch}-"
-                          f"accu-{validation_accuracy:.4f}.pt"
-                )
+            # if validation_accuracy > self.__max_accuracy:
+            #     self.__max_accuracy = validation_accuracy
+            #     (self.logger.checkpoint_dir / self.experiment_name).mkdir(exist_ok=True)
+            #     torch.save(
+            #         {
+            #             "model": self.model.state_dict(),
+            #             "optimizer": self.optimizer.state_dict(),
+            #             "epoch": self.current_epoch,
+            #         },
+            #         self.logger.checkpoint_dir
+            #             / self.experiment_name
+            #             / f"run-{self.run_index}-"
+            #               f"epoch-{self.current_epoch}-"
+            #               f"accu-{validation_accuracy:.4f}.pt"
+            #     )
 
         self.__is_fitted = True
         return self
