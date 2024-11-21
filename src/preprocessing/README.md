@@ -4,7 +4,7 @@ The current folder contains the scripts responsible for the preprocessing of the
 data described in [^Sethuraman-2023], section 3.2.
 
 Before jumping into the preprocessing we need to restructure the data.
-DPARSF can convert DICOM data but it should have a specific folder structure.
+DPARSF can convert DICOM data, but it should have a specific folder structure.
 
 First, call
 ```shell

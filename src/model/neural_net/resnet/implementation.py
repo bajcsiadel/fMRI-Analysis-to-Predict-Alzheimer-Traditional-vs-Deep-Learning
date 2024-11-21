@@ -101,12 +101,12 @@ class ResNet(BaseEstimator, torch_resnet.ResNet):
 if __name__ == "__main__":
     from icecream import ic
 
-    m = ResNet(18, 1, 3, True)
+    m = ResNet(50, 2, 1, True)
     ic(
         summary(
             m,
-            input_size=(1, 3, 112, 112),
-            col_names=("input_size", "output_size", "kernel_size"),
+            input_size=(1, 1, 116, 116),
+            col_names=("input_size", "output_size", "kernel_size", "num_params"),
             depth=4,
         )
     )
