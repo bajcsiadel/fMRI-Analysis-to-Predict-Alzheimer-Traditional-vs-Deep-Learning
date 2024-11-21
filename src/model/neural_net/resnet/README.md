@@ -166,7 +166,7 @@ graph TD;
     R --> S["Bottleneck: 2048 x 4 x 4"]::convNode;
     end;
     S --> T["AdaptivePool(avg,kernel=1 x 1): 2048 x 1 x 1"]:::poolNode;
-    T --> U["Linear(): n_classes"]:::linearNode;
+    T -- flatten --> U["Linear(): n_classes"]:::linearNode;
     U --> OUTPUT[Output: n_classes]:::simpleText;
 ```
 

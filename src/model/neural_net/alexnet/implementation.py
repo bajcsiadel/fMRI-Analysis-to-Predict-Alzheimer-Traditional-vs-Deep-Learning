@@ -70,7 +70,7 @@ if __name__ == "__main__":
 
     image_shape_ = (116, 116)
     in_channels = 1
-    alex_net = AlexNet(n_classes=3, image_shape=image_shape_, pretrained=True, in_channels=in_channels)
+    alex_net = AlexNet(n_classes=2, image_shape=image_shape_, pretrained=True, in_channels=in_channels)
     ic(
         summary(
             alex_net,

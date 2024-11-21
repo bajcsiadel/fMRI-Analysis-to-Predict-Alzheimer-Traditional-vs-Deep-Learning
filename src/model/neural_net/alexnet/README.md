@@ -2,7 +2,7 @@
 
 The model was presented in [^Krizhevsky-2012].
 
-Implementation is based on [this article](https://blog.paperspace.com/alexnet-pytorch/#alexnet-from-scratch).
+The implementation from [`torchvision.models`](https://pytorch.org/vision/main/models/alexnet.html) is used.
 
 [^Krizhevsky-2012]: Krizhevsky A, Sutskever I, Hinton GE. ImageNet Classification 
 with Deep Convolutional Neural Networks. In: Pereira F, Burges CJ, 
@@ -18,66 +18,58 @@ graph TD;
     classDef linearNode stroke:#00FF00;
     classDef simpleText stroke-opacity:0, fill-opacity: 0;
     
-    INPUT[Input: 3 x 224 x 224]:::simpleText ---> B["Conv(kernel=11 x 11,stride=4): 96 x 54 x 54"]:::convNode;
-    B -- ReLU --> C["Pool(max,kernel=3 x 3,stride=2): 96 x 26 x 26"]:::poolNode;
-    C --> D["Conv(kernel=5 x 5,pad=2): 256 x 26 x 26"]:::convNode;
-    D -- ReLU --> E["Pool(max,kernel=3 x 3,stride=2): 256 x 12 x 12"]:::poolNode;
-    E --> F["Conv(kernel=3 x 3,pad=1): 384 x 12 x 12"]:::convNode;
-    F -- ReLU --> G["Conv(kernel=3 x 3,pad=1): 384 x 12 x 12"]:::convNode;
-    G -- ReLU --> H["Conv(kernel=3 x 3,pad=1): 384 x 12 x 12"]:::convNode;
-    H -- ReLU --> I["Pool(max,kernel=3 x 3,stride=2): 256 x 5 x 5"]:::poolNode;
-    I -- flatten --> J["Linear(): 4096"]:::linearNode;
-    J -- "ReLU;Dropout(0.5)" --> K["Linear(): 4096"]:::linearNode;
-    K -- "ReLU;Dropout(0.5)" --> L["Linear(): `n_classes`"]:::linearNode;
-    L --> OUTPUT[Output: `n_classes`]:::simpleText;
+    INPUT[Input: 1 x 116 x 116]:::simpleText ---> B["Conv(kernel=11 x 11,stride=4): 64 x 28 x 28"]:::convNode;
+    B -- ReLU --> C["Pool(max,kernel=3 x 3,stride=2): 64 x 13 x 13"]:::poolNode;
+    C --> D["Conv(kernel=5 x 5,pad=2): 192 x 13 x 13"]:::convNode;
+    D -- ReLU --> E["Pool(max,kernel=3 x 3,stride=2): 192 x 6 x 6"]:::poolNode;
+    E --> F["Conv(kernel=3 x 3,pad=1): 384 x 6 x 6"]:::convNode;
+    F -- ReLU --> G["Conv(kernel=3 x 3,pad=1): 256 x 6 x 6"]:::convNode;
+    G -- ReLU --> H["Conv(kernel=3 x 3,pad=1): 256 x 6 x 6"]:::convNode;
+    H -- ReLU --> I["Pool(max,kernel=3 x 3,stride=2): 256 x 2 x 2"]:::poolNode;
+    I -- ReLU --> J["AdaptivePool(avg,kernel=2 x 2,stride=2): 256 x 2 x 2"]:::poolNode;
+    J -- flatten --> K["Linear(): 4096"]:::linearNode;
+    K -- "ReLU <br /> Dropout(0.5)" --> L["Linear(): 4096"]:::linearNode;
+    L -- "ReLU <br /> Dropout(0.5)" --> M["Linear(): n_classes"]:::linearNode;
+    M --> OUTPUT[Output: n_classes]:::simpleText;
 ```
 
 ```text
 ============================================================================================================================================
 Layer (type:depth-idx)                   Kernel Shape              Input Shape               Output Shape              Param #
 ============================================================================================================================================
-AlexNet                                  --                        [1, 3, 299, 299]          [1, 3]                    --
-├─AlexNetFeatures: 1-1                   --                        [1, 3, 299, 299]          [1, 256, 8, 8]            --
-│    └─Sequential: 2-1                   --                        [1, 3, 299, 299]          [1, 96, 36, 36]           --
-│    │    └─Conv2d: 3-1                  [11, 11]                  [1, 3, 299, 299]          [1, 96, 73, 73]           34,944
-│    │    └─ReLU: 3-2                    --                        [1, 96, 73, 73]           [1, 96, 73, 73]           --
-│    │    └─LocalResponseNorm: 3-3       --                        [1, 96, 73, 73]           [1, 96, 73, 73]           --
-│    │    └─MaxPool2d: 3-4               3                         [1, 96, 73, 73]           [1, 96, 36, 36]           --
-│    └─Sequential: 2-2                   --                        [1, 96, 36, 36]           [1, 256, 17, 17]          --
-│    │    └─Conv2d: 3-5                  [5, 5]                    [1, 96, 36, 36]           [1, 256, 36, 36]          614,656
-│    │    └─ReLU: 3-6                    --                        [1, 256, 36, 36]          [1, 256, 36, 36]          --
-│    │    └─LocalResponseNorm: 3-7       --                        [1, 256, 36, 36]          [1, 256, 36, 36]          --
-│    │    └─MaxPool2d: 3-8               3                         [1, 256, 36, 36]          [1, 256, 17, 17]          --
-│    └─Sequential: 2-3                   --                        [1, 256, 17, 17]          [1, 384, 17, 17]          --
-│    │    └─Conv2d: 3-9                  [3, 3]                    [1, 256, 17, 17]          [1, 384, 17, 17]          885,120
-│    │    └─ReLU: 3-10                   --                        [1, 384, 17, 17]          [1, 384, 17, 17]          --
-│    └─Sequential: 2-4                   --                        [1, 384, 17, 17]          [1, 384, 17, 17]          --
-│    │    └─Conv2d: 3-11                 [3, 3]                    [1, 384, 17, 17]          [1, 384, 17, 17]          1,327,488
-│    │    └─ReLU: 3-12                   --                        [1, 384, 17, 17]          [1, 384, 17, 17]          --
-│    └─Sequential: 2-5                   --                        [1, 384, 17, 17]          [1, 256, 8, 8]            --
-│    │    └─Conv2d: 3-13                 [3, 3]                    [1, 384, 17, 17]          [1, 256, 17, 17]          884,992
-│    │    └─ReLU: 3-14                   --                        [1, 256, 17, 17]          [1, 256, 17, 17]          --
-│    │    └─MaxPool2d: 3-15              3                         [1, 256, 17, 17]          [1, 256, 8, 8]            --
-├─Flatten: 1-2                           --                        [1, 256, 8, 8]            [1, 16384]                --
-├─Sequential: 1-3                        --                        [1, 16384]                [1, 4096]                 --
-│    └─Dropout: 2-6                      --                        [1, 16384]                [1, 16384]                --
-│    └─Linear: 2-7                       --                        [1, 16384]                [1, 4096]                 67,112,960
-│    └─ReLU: 2-8                         --                        [1, 4096]                 [1, 4096]                 --
-├─Sequential: 1-4                        --                        [1, 4096]                 [1, 4096]                 --
-│    └─Dropout: 2-9                      --                        [1, 4096]                 [1, 4096]                 --
-│    └─Linear: 2-10                      --                        [1, 4096]                 [1, 4096]                 16,781,312
-│    └─ReLU: 2-11                        --                        [1, 4096]                 [1, 4096]                 --
-├─Sequential: 1-5                        --                        [1, 4096]                 [1, 3]                    --
-│    └─Linear: 2-12                      --                        [1, 4096]                 [1, 3]                    12,291
+AlexNet                                  --                        [1, 1, 116, 116]          [1, 2]                    --
+├─Sequential: 1-1                        --                        [1, 1, 116, 116]          [1, 256, 2, 2]            --
+│    └─Conv2d: 2-1                       [11, 11]                  [1, 1, 116, 116]          [1, 64, 28, 28]           7,808
+│    └─ReLU: 2-2                         --                        [1, 64, 28, 28]           [1, 64, 28, 28]           --
+│    └─MaxPool2d: 2-3                    3                         [1, 64, 28, 28]           [1, 64, 13, 13]           --
+│    └─Conv2d: 2-4                       [5, 5]                    [1, 64, 13, 13]           [1, 192, 13, 13]          307,392
+│    └─ReLU: 2-5                         --                        [1, 192, 13, 13]          [1, 192, 13, 13]          --
+│    └─MaxPool2d: 2-6                    3                         [1, 192, 13, 13]          [1, 192, 6, 6]            --
+│    └─Conv2d: 2-7                       [3, 3]                    [1, 192, 6, 6]            [1, 384, 6, 6]            663,936
+│    └─ReLU: 2-8                         --                        [1, 384, 6, 6]            [1, 384, 6, 6]            --
+│    └─Conv2d: 2-9                       [3, 3]                    [1, 384, 6, 6]            [1, 256, 6, 6]            884,992
+│    └─ReLU: 2-10                        --                        [1, 256, 6, 6]            [1, 256, 6, 6]            --
+│    └─Conv2d: 2-11                      [3, 3]                    [1, 256, 6, 6]            [1, 256, 6, 6]            590,080
+│    └─ReLU: 2-12                        --                        [1, 256, 6, 6]            [1, 256, 6, 6]            --
+│    └─MaxPool2d: 2-13                   3                         [1, 256, 6, 6]            [1, 256, 2, 2]            --
+├─AdaptiveAvgPool2d: 1-2                 --                        [1, 256, 2, 2]            [1, 256, 2, 2]            --
+├─Sequential: 1-3                        --                        [1, 1024]                 [1, 3]                    --
+│    └─Dropout: 2-14                     --                        [1, 1024]                 [1, 1024]                 --
+│    └─Linear: 2-15                      --                        [1, 1024]                 [1, 4096]                 4,198,400
+│    └─ReLU: 2-16                        --                        [1, 4096]                 [1, 4096]                 --
+│    └─Dropout: 2-17                     --                        [1, 4096]                 [1, 4096]                 --
+│    └─Linear: 2-18                      --                        [1, 4096]                 [1, 4096]                 16,781,312
+│    └─ReLU: 2-19                        --                        [1, 4096]                 [1, 4096]                 --
+│    └─Linear: 2-20                      --                        [1, 4096]                 [1, 2]                    12,291
 ============================================================================================================================================
-Total params: 87,653,763
-Trainable params: 87,653,763
+Total params: 23,446,211
+Trainable params: 23,446,211
 Non-trainable params: 0
-Total mult-adds (Units.GIGABYTES): 1.96
+Total mult-adds (Units.MEGABYTES): 156.07
 ============================================================================================================================================
-Input size (MB): 1.07
-Forward/backward pass size (MB): 9.18
-Params size (MB): 350.62
-Estimated Total Size (MB): 360.87
+Input size (MB): 0.05
+Forward/backward pass size (MB): 0.98
+Params size (MB): 93.78
+Estimated Total Size (MB): 94.82
 ============================================================================================================================================
 ```

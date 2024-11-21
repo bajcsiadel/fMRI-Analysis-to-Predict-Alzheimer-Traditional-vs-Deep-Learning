@@ -48,7 +48,7 @@ class ModifiedInceptionV2(nn.Module):
 
 if __name__ == "__main__":
     from icecream import ic
-    from tensorboard import summary
+    from torchinfo import summary
 
     from model.neural_net.inception_v2.base import (
         GridReduction,
@@ -57,11 +57,11 @@ if __name__ == "__main__":
         InceptionModuleF7,
     )
 
-    inception = InceptionV2(n_classes=3)
+    inception = InceptionV2(n_classes=2)
     ic(
         summary(
             inception,
-            input_size=(1, 3, 299, 299),
+            input_size=(1, 1, 116, 116),
             verbose=0,
             col_names=("kernel_size", "input_size", "output_size", "num_params"),
         )
