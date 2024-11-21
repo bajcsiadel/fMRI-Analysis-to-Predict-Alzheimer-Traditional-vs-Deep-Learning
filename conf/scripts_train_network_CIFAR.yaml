@@ -11,5 +11,6 @@ batch_size: 128
 learning_rate: 0.005
 disable_gpu: false
 pretrained: false
+seed: 2024
 
 cifar_location: ${oc.env:DATA_ROOT}/CIFAR10

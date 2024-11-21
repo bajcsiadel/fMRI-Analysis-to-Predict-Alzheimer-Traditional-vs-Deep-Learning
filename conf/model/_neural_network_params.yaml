@@ -1,0 +1,22 @@
+params:
+  lr:
+    - 0.0001
+    - 0.001
+    - 0.01
+    - 0.1
+  epochs:
+    - 50
+    - 100
+    - 150
+    - 200
+    - 500
+    - 1000
+    - 1500
+  batch_size:
+    - 32
+  criterion:
+    - torch.nn.BCEWithLogitsLoss
+#    - torch.nn.CrossEntropyLoss
+  optimizer:
+    - torch.optim.Adam
+    - torch.optim.SGD

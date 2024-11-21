@@ -72,7 +72,7 @@ def static_topographical_high_order_fc(
     :raises ValueError: if C does not have the correct shape.
     """
     return dynamic_topographical_high_order_fc(
-        C=C, signal=signal, window_length=get_env("TR"), stride=1
+        C=C, signal=signal, window_length=get_env("SIGNAL_LENGTH"), stride=1
     )
 
 

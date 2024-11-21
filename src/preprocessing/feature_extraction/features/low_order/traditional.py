@@ -42,7 +42,7 @@ def static_low_order_fc(signal: np.ndarray) -> np.ndarray:
     :param signal: The extracted ROI signals
     :return: The computed static low-order FC
     """
-    return dynamic_low_order_fc(signal, int(get_env("TR")), 1)
+    return dynamic_low_order_fc(signal, int(get_env("SIGNAL_LENGTH")), 1)
 
 
 if __name__ == "__main__":

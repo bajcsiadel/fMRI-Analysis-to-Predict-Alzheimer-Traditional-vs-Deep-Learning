@@ -12,5 +12,6 @@ poetry.lock.*
 **/results
 **/output/
 **/*.csv
+**/pretrained_models/
 
 **/log_*

@@ -1,7 +1,7 @@
 import hydra
 from omegaconf import omegaconf
 
-from utils.config.resolvers import resolve_results_location
+from utils.config.resolvers import add_all_custom_resolvers
 from utils.config.train import TrainConfig
 from utils.environment import get_env
 from utils.logger import TrainLogger
@@ -29,6 +29,6 @@ def main(cfg: TrainConfig):
 if __name__ == "__main__":
     TrainConfig.add_type_validation()
 
-    resolve_results_location()
+    add_all_custom_resolvers()
 
     main()

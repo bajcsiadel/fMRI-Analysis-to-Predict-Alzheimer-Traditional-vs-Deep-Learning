@@ -1,0 +1,16 @@
+defaults:
+  - _model_type_validation  # Validate model type. Defined in /src/utils/config/model.py
+  - _neural_network_params@_here_
+  - _self_
+
+name: Alexnet
+instance:
+  _target_: model.neural_net.SklearnWrapper
+  model:
+    _target_: model.neural_net.alexnet.implementation.AlexNet
+    image_shape:
+      - ${image_properties.width}
+      - ${image_properties.height}
+params: {}
+trainer:
+  _target_: model.neural_net.train.train_model

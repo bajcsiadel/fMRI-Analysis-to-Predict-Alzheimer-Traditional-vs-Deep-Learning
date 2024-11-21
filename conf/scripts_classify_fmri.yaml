@@ -8,6 +8,7 @@ defaults:
   - model: svm
 
 frequency: slow5
+classes: ???  # Set the classes used in the classification: CN-vs-AD, CN-vs-LMCI, etc.
 
 cv_folds: 10
 
@@ -15,16 +16,19 @@ image_properties:
   width: 100
   height: 100
 
+gpu: 1  # Set -1 to use CPU
+
 seed: 2024
 
 hydra:
   run:
-    dir: ${results_location:}/${model.name}/${feature.name}/${hydra:job.override_dirname}/${now:%Y-%m-%d_%H-%M-%S}
+    dir: ${results_location:}/${model.name}-${model.trainer._target_}/${feature.name}/${sanitize_dir_name:${hydra:job.override_dirname}}/${now:%Y-%m-%d_%H-%M-%S}
   sweep:
-    subdir: ${model.name}/${feature.name}/${hydra:job.override_dirname}/${now:%Y-%m-%d_%H-%M-%S}
+    subdir: ${model.name}-${model.trainer._target_}/${feature.name}/${sanitize_dir_name:${hydra:job.override_dirname}}/${now:%Y-%m-%d_%H-%M-%S}
   job:
     config:
       override_dirname:
         exclude_keys:
           - model
           - feature
+          - gpu

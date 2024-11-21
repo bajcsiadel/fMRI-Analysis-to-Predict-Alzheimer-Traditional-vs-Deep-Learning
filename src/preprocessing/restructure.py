@@ -242,6 +242,7 @@ for index, session_name_dir in enumerate(dirs, start=1):
             # Do not process anatomical image if there are no scans in fMRI folder
             break
         logger.info(f"{iteration}\t\tnumber of images = {len(fmri_scans)}")
+        # read the meta information of the first image
         images_meta = fmri_scans[:1] | pipe.map(pydicom.dcmread) | pipe.to_list()
 
         n_volumes = int(get_tag_from_meta(

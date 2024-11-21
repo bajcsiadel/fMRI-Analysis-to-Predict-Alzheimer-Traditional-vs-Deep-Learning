@@ -1,4 +1,6 @@
 import dataclasses as dc
+from ast import Index
+
 import hydra
 import numpy as np
 import pandas as pd
@@ -60,47 +62,58 @@ def main(cfg: Config):
         logger.info(data_distribution(metadata, "sex").to_string(index=False))
 
         logger.info("Label distribution:")
+        label_count = data_distribution(metadata, "label")
         logger.info(data_distribution(metadata, "label").to_string(index=False))
 
         logger.info("Average age per group:")
         logger.info(metadata.groupby("label")["age"].mean())
 
-        cn = metadata[metadata["label"] == "CN"]
+        ad_count = label_count[label_count["label"] == "AD"]["count"].values[0]
+        label_count = label_count[label_count["count"] >= ad_count]
+        logger.info("Labels to keep:")
+        logger.info(label_count.to_string(index=False))
+
         ad = metadata[metadata["label"] == "AD"]
+        label_data = {label: metadata[metadata["label"] == label] for label in label_count["label"] if label != "AD"}
 
         logger.info("Balancing the groups by age:")
-        selected_cn = None
-        missing = {}
+        selected = {label: None for label in label_count["label"] if label != "AD"}
+        missing = {label: {} for label in label_count["label"] if label != "AD"}
         for (age_value, rows) in ad.groupby("age"):
-            cn_with_age = cn[cn["age"] == age_value]
-            if len(cn_with_age) < len(rows):
-                current_selection = cn_with_age.values
-                missing[age_value] = len(rows) - len(cn_with_age)
-            else:
-                current_selection = cn[cn["age"] == age_value].sample(
-                    n=len(rows)
-                ).values
+            for other_label, other_label_data in label_data.items():
+                with_age = other_label_data[other_label_data["age"] == age_value]
+                if len(with_age) < len(rows):
+                    current_selection = with_age.values
+                    missing[other_label][age_value] = len(rows) - len(with_age)
+                else:
+                    current_selection = with_age.sample(n=len(rows)).values
 
-            if selected_cn is None:
-                selected_cn = current_selection
-            else:
-                selected_cn = np.vstack((selected_cn, current_selection))
+                if selected[other_label] is None:
+                    selected[other_label] = current_selection
+                else:
+                    selected[other_label] = np.vstack((selected[other_label], current_selection))
 
-        used = []
-        for age_value in missing.keys():
-            age_diff = np.abs(cn["age"].values - age_value)
-            for _ in range(missing[age_value]):
-                closest = np.argmin(age_diff)
-                while closest in used:
-                    age_diff[closest] = 100
+        for other_label in missing.keys():
+            other_label_data = label_data[other_label]
+            used_patients = selected[other_label][:, 0].tolist()
+            patient_ids = other_label_data["filename"].values.tolist()
+            for age_value in missing[other_label].keys():
+                age_diff = np.abs(other_label_data["age"].values - age_value)
+                age_diff[age_diff == 0] = 100  # patients with the given age are already selected
+                for _ in range(missing[other_label][age_value]):
                     closest = np.argmin(age_diff)
+                    while (patient_id := patient_ids[closest]) in used_patients:
+                        age_diff[closest] = 100
+                        closest = np.argmin(age_diff)
 
-                selected_cn = np.vstack((selected_cn, cn.iloc[closest].values))
-                used.append(closest)
-                age_diff[closest] = 100
-        cn = pd.DataFrame(selected_cn, columns=cn.columns)
+                    selected[other_label] = np.vstack((selected[other_label], other_label_data.iloc[closest].values))
+                    used_patients.append(patient_id)
+                    age_diff[closest] = 100
 
-        data = pd.concat([cn, ad], ignore_index=True)
+        final_data = {label: pd.DataFrame(selected_data, columns=ad.columns) for label, selected_data in selected.items()}
+        final_data["ad"] = ad
+
+        data = pd.concat(final_data, ignore_index=True)
 
         logger.info("Label distribution after balancing:")
         logger.info(data_distribution(data, "label").to_string(index=False))
@@ -108,9 +121,11 @@ def main(cfg: Config):
         logger.info("Average age per group after balancing:")
         logger.info(data.groupby("label")["age"].mean())
 
+        test_size_per_label = int(np.round(len(data) * cfg.test_size / len(final_data), 0))
+
         train_data, test_data = train_test_split(
             data,
-            test_size=cfg.test_size,
+            test_size=test_size_per_label * len(final_data),
             random_state=cfg.seed,
             shuffle=True,
             stratify=data["label"],
